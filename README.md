@@ -16,7 +16,7 @@ Installation is with maven or your favourite maven repository aware build tool.
 
 ### lein/cake project.clj
 
-    :dependencies [[org.cloudhoist/pallet-common "0.1.0-SNAPSHOT"]]
+    :dependencies [[org.cloudhoist/pallet-common "0.1.0"]]
     :repositories {"sonatype"
                    "http://oss.sonatype.org/content/repositories/releases"}
 
@@ -26,7 +26,7 @@ Installation is with maven or your favourite maven repository aware build tool.
       <dependency>
         <groupId>org.cloudhoist</groupId>
         <artifactId>pallet-common</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.1.0</version>
       </dependency>
     <dependencies>
 
