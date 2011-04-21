@@ -10,39 +10,43 @@
      `(let [frame# (nth (.. (Thread/currentThread) getStackTrace) ~frame-depth)]
         [(.getFileName frame#) (.getLineNumber frame#)])))
 
+(defn warn
+  "Log a deprecation warning"
+  ([message]
+     (logging/log :warn (format "DEPRECATED %s" message)))
+  ([file message]
+     (logging/log
+      :warn
+      (format "DEPRECATED [%s] %s" (or file "unknown") message)))
+  ([file line message]
+     (logging/log
+      :warn
+      (format
+       "DEPRECATED [%s:%s] %s"
+       (or file "unknown")
+       (or line "unknown")
+       message))))
+
 (defmacro deprecated-macro
   "Generates a deprecated warning for a macro, allowing the source file and
    line to be captured"
-  [form msg]
-  `(logging/log
-    :warn
-    (format
-     "DEPRECATED [%s:%s] %s"
-     ~(or (:file (meta form) *file*) "unknown") ~(:line (meta form)) ~msg)))
+  [form message]
+  `(warn ~(:file (meta form) *file*) ~(:line (meta form)) ~message))
 
 (defn deprecated
-  "Generates a deprecated warning"
-  [msg]
+  "Generates a deprecated warning, locating file and line from the call stack."
+  [message]
   (let [[file line] (find-caller-from-stack)]
-    (logging/log
-     :warn
-     (format "DEPRECATED [%s:%s] %s" (or file "unknown") line msg))))
+    (warn file line message)))
 
 (defn rename
   "Generates a deprecated message for renaming a function"
   [from to]
   (format "%s is deprecated, use %s" (pr-str from) (pr-str to)))
 
-(defmacro forward-to-script-lib
-  [& symbols]
-  `(do
-     ~@(for [sym symbols]
-         (list `def sym (symbol "pallet.script.lib" (name sym))))))
-
 (defmacro forward-no-warn
   [f-name to-ns]
   `(def ~f-name ~(symbol (name to-ns) (name f-name))))
-
 
 (defmacro forward-fn-warn
   [f-name ns]
