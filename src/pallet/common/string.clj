@@ -1,4 +1,6 @@
-(ns pallet.common.string)
+(ns pallet.common.string
+  (:require
+    [clojure.string :as string]))
 
 (defn ^String substring
     "Drops first n characters from s.  Returns an empty string if n is
@@ -12,3 +14,7 @@
     "Add quotes to the argument s as a string"
     [s]
     (str "\"" s "\""))
+
+(defn underscore [s]
+    "Change - to _"
+    (string/replace s \- \_))

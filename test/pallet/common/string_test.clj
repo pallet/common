@@ -9,3 +9,6 @@
 
 (deftest add-quotes-test
   (is (= "\"test\"" (add-quotes "test"))))
+
+(deftest underscore-test
+  (is (= "underscore_tes_t" (underscore "underscore-tes-t"))))
