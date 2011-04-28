@@ -4,11 +4,17 @@
    clojure.test))
 
 (deftest substring-test
-  (is (= "est" (substring 1 "test")))
-  (is (= "" (substring 10 "test"))))
+  (testing "one argument"
+    (is (= "est" (substring "test" 1)))
+    (is (= "" (substring "test" 10))))
+  (testing "two arguments"
+    (is (= "es" (substring "test" 1 3)))
+    (is (= "" (substring "test" 10 12)))
+    (is (= "est" (substring "test" 1 12)))))
 
-(deftest add-quotes-test
-  (is (= "\"test\"" (add-quotes "test"))))
+(deftest quoted-test
+  (is (= "\"test\"" (quoted "test")))
+  (is (= "\"1\"" (quoted 1))))
 
 (deftest underscore-test
   (is (= "underscore_tes_t" (underscore "underscore-tes-t"))))
