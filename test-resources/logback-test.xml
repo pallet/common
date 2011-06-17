@@ -1,0 +1,24 @@
+<configuration scan="true" scanPeriod="1 seconds" debug="true">
+  <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
+    <!-- in the absence of the class attribute, it is assumed that the
+         desired discriminator type is
+         ch.qos.logback.classic.sift.MDCBasedDiscriminator -->
+    <discriminator>
+      <key>my-key</key>
+      <defaultValue>not-set</defaultValue>
+    </discriminator>
+    <sift>
+      <appender name="FILE-${my-key}" class="ch.qos.logback.core.FileAppender">
+        <file>log/${my-key}.log</file>
+        <append>false</append>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+          <pattern>%msg%n</pattern>
+        </layout>
+      </appender>
+    </sift>
+  </appender>
+
+  <root level="DEBUG">
+    <appender-ref ref="SIFT" />
+  </root>
+</configuration>
