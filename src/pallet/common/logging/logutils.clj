@@ -72,32 +72,42 @@
       `(do ~@body))))
 
 (defmacro with-threshold
-  [[level & [logger-name]] & body]
+  [[level & [appender-name logger-name]] & body]
   (try
        (require 'pallet.common.logging.logback)
        `(pallet.common.logging.logback/with-logger-level
-          [~level ~logger-name] ~@body)
+          [~level ~appender-name ~logger-name] ~@body)
        (catch Exception _
          (try
            (require 'pallet.common.logging.log4j)
            `(pallet.common.logging.log4j/with-appender-threshold
-              [~level ~logger-name] ~@body)
+              [~level ~appender-name] ~@body)
            (catch Exception _
              (fn [f] (f)))))))
 
 (defmacro logging-threshold-fixture
   "A fixture to set the logging level of a specified logger"
-  ([level logger-name]
+  ([level appender-name logger-name]
      (try
        (require 'pallet.common.logging.logback)
        `(pallet.common.logging.logback/logging-threshold-fixture
-         ~level ~logger-name)
+         ~level ~appender-name ~logger-name)
        (catch Exception _
          (try
            (require 'pallet.common.logging.log4j)
            `(pallet.common.logging.log4j/logging-threshold-fixture
-             ~level ~logger-name)
+             ~level ~appender-name ~logger-name)
            (catch Exception _
              (fn [f] (f)))))))
-  ([level] `(logging-threshold-fixture ~level nil))
-  ([] `(logging-threshold-fixture :error nil)))
+  ([level appender-name] `(logging-threshold-fixture ~level appender-name nil))
+  ([level] `(logging-threshold-fixture ~level nil nil))
+  ([] `(logging-threshold-fixture :error nil nil)))
+
+(defmacro with-log-to-string
+  "Target the logger for an output string."
+  [[& args] & body]
+  (try
+    (require 'pallet.common.logging.logback)
+    `(pallet.common.logging.logback/with-log-to-string [~@args] ~@body)
+    (catch Exception _
+      `(with-out-str ~@body))))

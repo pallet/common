@@ -1,4 +1,10 @@
-<configuration scan="true" scanPeriod="1 seconds" debug="false">
+<configuration scan="true" scanPeriod="1 seconds">
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>%msg%n</Pattern>
+    </layout>
+  </appender>
+
   <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
     <!-- in the absence of the class attribute, it is assumed that the
          desired discriminator type is
@@ -17,6 +23,10 @@
       </appender>
     </sift>
   </appender>
+
+  <logger name="console" level="DEBUG">
+    <appender-ref ref="CONSOLE" />
+  </logger>
 
   <root level="DEBUG">
     <appender-ref ref="SIFT" />

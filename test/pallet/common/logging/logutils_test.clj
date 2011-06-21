@@ -13,7 +13,7 @@
 (deftest suppress-logging-test
   ;; this test could be improved
   (is (= ""
-         (with-out-str
+         (logutils/with-log-to-string ["CONSOLE" "console"]
            (logutils/suppress-logging
             (logging/warn "Hello"))))))
 
@@ -25,24 +25,21 @@
               (logging/warn "Hello")))))))
 
 (deftest with-threshold-test
-  (is
-   (logutils/with-threshold [:warn]
-     (with-out-str
-       (logutils/logging-to-stdout
-        (logging/warn "Hello"))))))
+  (is (= "Hello\n"
+         (logutils/with-log-to-string ["CONSOLE" "console"]
+           (logging/log "console" :warn nil "Hello"))))
+  (is (= ""
+         (logutils/with-log-to-string ["CONSOLE" "console"]
+           (logutils/with-threshold [:error "CONSOLE" "console"]
+             (logging/log "console" :warn nil "Hello"))))))
 
 
 (deftest logging-threshold-fixture-test
-  ;; TODO - improve these
+  (is (= "Hello\n"
+         (logutils/with-log-to-string ["CONSOLE" "console"]
+           ((logutils/logging-threshold-fixture :warn "CONSOLE" "console")
+            #(logging/log "console" :warn nil "Hello")))))
   (is (= ""
-         (with-out-str
-           ((logutils/logging-threshold-fixture)
-            #(logging/error "Hello")))))
-  (is (= ""
-         (with-out-str
-           ((logutils/logging-threshold-fixture)
-            #(logging/warn "Hello")))))
-  (is (= ""
-         (with-out-str
-           ((logutils/logging-threshold-fixture :warn)
-            #(logging/warn "Hello"))))))
+         (logutils/with-log-to-string ["CONSOLE" "console"]
+           ((logutils/logging-threshold-fixture :error "CONSOLE" "console")
+            #(logging/log "console" :warn nil "Hello"))))))

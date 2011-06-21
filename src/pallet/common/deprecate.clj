@@ -1,7 +1,7 @@
 (ns pallet.common.deprecate
   "Deprecation forms"
   (:require
-   [clojure.contrib.logging :as logging]))
+   [clojure.tools.logging :as logging]))
 
 (defmacro find-caller-from-stack
   "Find the call site of a function. A macro so we don't create extra frames."
@@ -13,19 +13,12 @@
 (defn warn
   "Log a deprecation warning"
   ([message]
-     (logging/log :warn (format "DEPRECATED %s" message)))
+     (logging/warnf "DEPRECATED %s" message))
   ([file message]
-     (logging/log
-      :warn
-      (format "DEPRECATED [%s] %s" (or file "unknown") message)))
+     (logging/warnf "DEPRECATED [%s] %s" (or file "unknown") message))
   ([file line message]
-     (logging/log
-      :warn
-      (format
-       "DEPRECATED [%s:%s] %s"
-       (or file "unknown")
-       (or line "unknown")
-       message))))
+     (logging/warnf
+      "DEPRECATED [%s:%s] %s" (or file "unknown") (or line "unknown") message)))
 
 (defmacro deprecated-macro
   "Generates a deprecated warning for a macro, allowing the source file and
