@@ -1,4 +1,4 @@
-<configuration scan="true" scanPeriod="1 seconds" debug="true">
+<configuration scan="true" scanPeriod="1 seconds" debug="false">
   <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
     <!-- in the absence of the class attribute, it is assumed that the
          desired discriminator type is
@@ -9,7 +9,7 @@
     </discriminator>
     <sift>
       <appender name="FILE-${my-key}" class="ch.qos.logback.core.FileAppender">
-        <file>log/${my-key}.log</file>
+        <file>logs/${my-key}.log</file>
         <append>false</append>
         <layout class="ch.qos.logback.classic.PatternLayout">
           <pattern>%msg%n</pattern>

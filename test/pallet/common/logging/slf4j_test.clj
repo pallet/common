@@ -93,9 +93,9 @@
        (catch Throwable e
          nil)))
 
-(def log-1 "log/1.log")
-(def log-2 "log/2.log")
-(def log-not-set "log/not-set.log")
+(def log-1 "logs/1.log")
+(def log-2 "logs/2.log")
+(def log-not-set "logs/not-set.log")
 
 (defn prime-logs [log]
   "This is needed for when running the tests from the command line. The log files are
