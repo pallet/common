@@ -102,10 +102,6 @@
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
-      <artifactId>clojure-contrib</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.clojure</groupId>
       <artifactId>tools.logging</artifactId>
       <version>0.1.2</version>
       <optional>true</optional>
