@@ -3,7 +3,7 @@
    pallet.common.shell
    clojure.test)
   (:require
-   [clojure.contrib.logging :as logging]))
+   [clojure.tools.logging :as logging]))
 
 (deftest system-test
   (cond

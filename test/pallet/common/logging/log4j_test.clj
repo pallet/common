@@ -3,7 +3,7 @@
    pallet.common.logging.log4j
    clojure.test)
   (:require
-   [clojure.contrib.logging :as logging]))
+   [clojure.tools.logging :as logging]))
 
 (deftest with-appender-threshold-test
   (with-appender-threshold [:error]

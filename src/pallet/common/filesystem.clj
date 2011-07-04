@@ -5,9 +5,10 @@
 
 (defmacro with-temp-file
   "Create a block where `varname` is a temporary `File` containing `content`."
-  [[varname content] & body]
+  [[varname & [content]] & body]
   `(let [~varname (java.io.File/createTempFile "stevedore", ".tmp")]
-     (io/copy ~content ~varname)
+     (when-let [content# ~content]
+       (io/copy content# ~varname))
      (let [rv# (do ~@body)]
        (.delete ~varname)
        rv#)))
