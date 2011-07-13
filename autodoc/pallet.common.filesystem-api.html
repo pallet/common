@@ -34,7 +34,7 @@ namespace.
     <a class="wiki_link" href="api-index.html">API Index</a><br />
     <a class="wiki_link" href="#">Namespaces:</a>
     <ul id="left-sidebar-list">
-      <li><a href="pallet.common.deprecate-api.html" class="wiki_link">pallet.common.deprecate</a></li><li><a href="pallet.common.filesystem-api.html" class="wiki_link">pallet.common.filesystem</a></li><li><a href="pallet.common.logging.log4j-api.html" class="wiki_link">pallet.common.logging.log4j</a></li><li><a href="pallet.common.shell-api.html" class="wiki_link">pallet.common.shell</a></li>
+      <li><a href="pallet.common.def-api.html" class="wiki_link">pallet.common.def</a></li><li><a href="pallet.common.deprecate-api.html" class="wiki_link">pallet.common.deprecate</a></li><li><a href="pallet.common.filesystem-api.html" class="wiki_link">pallet.common.filesystem</a></li><li><a href="pallet.common.logging.log4j-api.html" class="wiki_link">pallet.common.logging.log4j</a></li><li><a href="pallet.common.logging.logback-api.html" class="wiki_link">pallet.common.logging.logback</a></li><li><a href="pallet.common.logging.logutils-api.html" class="wiki_link">pallet.common.logging.logutils</a></li><li><a href="pallet.common.logging.slf4j-api.html" class="wiki_link">pallet.common.logging.slf4j</a></li><li><a href="pallet.common.resource-api.html" class="wiki_link">pallet.common.resource</a></li><li><a href="pallet.common.shell-api.html" class="wiki_link">pallet.common.shell</a></li><li><a href="pallet.common.string-api.html" class="wiki_link">pallet.common.string</a></li>
     </ul>
   </div>
 </div>
@@ -70,7 +70,7 @@ by <span id="author">Unknown</span><br />
   <hr />
   <h2 id="pallet.common.filesystem/with-temp-file">with-temp-file</h2>
   <span id="var-type">macro</span><br />
-  <pre id="var-usage">Usage: (with-temp-file [varname content] &amp; body)
+  <pre id="var-usage">Usage: (with-temp-file [varname &amp; [content]] &amp; body)
 </pre>
   <pre id="var-docstr">Create a block where `varname` is a temporary `File` containing `content`.</pre>
   

@@ -34,7 +34,7 @@ namespace.
     <a class="wiki_link" href="api-index.html">API Index</a><br />
     <a class="wiki_link" href="#">Namespaces:</a>
     <ul id="left-sidebar-list">
-      <li><a href="pallet.common.deprecate-api.html" class="wiki_link">pallet.common.deprecate</a></li><li><a href="pallet.common.filesystem-api.html" class="wiki_link">pallet.common.filesystem</a></li><li><a href="pallet.common.logging.log4j-api.html" class="wiki_link">pallet.common.logging.log4j</a></li><li><a href="pallet.common.shell-api.html" class="wiki_link">pallet.common.shell</a></li>
+      <li><a href="pallet.common.def-api.html" class="wiki_link">pallet.common.def</a></li><li><a href="pallet.common.deprecate-api.html" class="wiki_link">pallet.common.deprecate</a></li><li><a href="pallet.common.filesystem-api.html" class="wiki_link">pallet.common.filesystem</a></li><li><a href="pallet.common.logging.log4j-api.html" class="wiki_link">pallet.common.logging.log4j</a></li><li><a href="pallet.common.logging.logback-api.html" class="wiki_link">pallet.common.logging.logback</a></li><li><a href="pallet.common.logging.logutils-api.html" class="wiki_link">pallet.common.logging.logutils</a></li><li><a href="pallet.common.logging.slf4j-api.html" class="wiki_link">pallet.common.logging.slf4j</a></li><li><a href="pallet.common.resource-api.html" class="wiki_link">pallet.common.resource</a></li><li><a href="pallet.common.shell-api.html" class="wiki_link">pallet.common.shell</a></li><li><a href="pallet.common.string-api.html" class="wiki_link">pallet.common.string</a></li>
     </ul>
   </div>
 </div>
@@ -59,6 +59,8 @@ namespace.
       <a href="#pallet.common.deprecate/forward-vars">forward-vars</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#pallet.common.deprecate/rename">rename</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#pallet.common.deprecate/warn">warn</a>
     </div>
     <br />
   </div>
@@ -80,16 +82,16 @@ by <span id="author">Unknown</span><br />
   <hr />
   <h2 id="pallet.common.deprecate/deprecated">deprecated</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (deprecated msg)
+  <pre id="var-usage">Usage: (deprecated message)
 </pre>
-  <pre id="var-docstr">Generates a deprecated warning</pre>
+  <pre id="var-docstr">Generates a deprecated warning, locating file and line from the call stack.</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
   <h2 id="pallet.common.deprecate/deprecated-macro">deprecated-macro</h2>
   <span id="var-type">macro</span><br />
-  <pre id="var-usage">Usage: (deprecated-macro form msg)
+  <pre id="var-usage">Usage: (deprecated-macro form message)
 </pre>
   <pre id="var-docstr">Generates a deprecated warning for a macro, allowing the source file and
 line to be captured</pre>
@@ -130,6 +132,17 @@ line to be captured</pre>
   <pre id="var-usage">Usage: (rename from to)
 </pre>
   <pre id="var-docstr">Generates a deprecated message for renaming a function</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="pallet.common.deprecate/warn">warn</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (warn message)
+       (warn file message)
+       (warn file line message)
+</pre>
+  <pre id="var-docstr">Log a deprecation warning</pre>
   
 </div>
 

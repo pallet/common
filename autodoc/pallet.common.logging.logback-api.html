@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>pallet.common.logging.log4j API reference (pallet-common)</title>
+    <title>pallet.common.logging.logback API reference (pallet-common)</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -48,66 +48,79 @@ namespace.
   <div style="margin-left: 1em;" class="toc-section">
     <a href="#toc0">Overview</a>
     <div style="margin-left: 1em;" class="toc-entry">
-      <a href="#pallet.common.logging.log4j/appender">appender</a>
+      <a href="#pallet.common.logging.logback/logger">logger</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#pallet.common.logging.log4j/configure-from-path">configure-from-path</a>
+      <a href="#pallet.common.logging.logback/logging-threshold-fixture">logging-threshold-fixture</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#pallet.common.logging.log4j/logging-threshold-fixture">logging-threshold-fixture</a>
+      <a href="#pallet.common.logging.logback/slf4j-logback-status">slf4j-logback-status</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#pallet.common.logging.log4j/with-appender-threshold">with-appender-threshold</a>
+      <a href="#pallet.common.logging.logback/with-log-to-string">with-log-to-string</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#pallet.common.logging.logback/with-logger-level">with-logger-level</a>
     </div>
     <br />
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">pallet.common.logging.log4j</span></h1>
+                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">pallet.common.logging.logback</span></h1>
 by <span id="author">Unknown</span><br />
 <br />Usage:
 <pre>
 (ns your-namespace
-  (:require <span id="long-name">pallet.common.logging.log4j</span>))
+  (:require <span id="long-name">pallet.common.logging.logback</span>))
 </pre><pre>
 </pre><h2>Overview</h2>
-<pre id="namespace-docstr">Functions for manipulating log4j</pre>
+<pre id="namespace-docstr">Functions for manipulating logback</pre>
 <br />
 <h2>Public Variables and Functions</h2>
 <div id="var-entry">
   <br />
   <hr />
-  <h2 id="pallet.common.logging.log4j/appender">appender</h2>
+  <h2 id="pallet.common.logging.logback/logger">logger</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (appender appender-name)
+  <pre id="var-usage">Usage: (logger)
+       (logger logger-name)
 </pre>
-  <pre id="var-docstr">Get the appender with the specified name</pre>
+  <pre id="var-docstr">Get the logger with the specified name</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="pallet.common.logging.log4j/configure-from-path">configure-from-path</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (configure-from-path path)
-</pre>
-  <pre id="var-docstr">Configure log4j using specified configuration file path.</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="pallet.common.logging.log4j/logging-threshold-fixture">logging-threshold-fixture</h2>
+  <h2 id="pallet.common.logging.logback/logging-threshold-fixture">logging-threshold-fixture</h2>
   <span id="var-type">function</span><br />
   <pre id="var-usage">Usage: (logging-threshold-fixture)
        (logging-threshold-fixture level)
        (logging-threshold-fixture level appender-name)
+       (logging-threshold-fixture level appender-name logger-name)
 </pre>
-  <pre id="var-docstr">A fixture to set the logging level of a specified appender</pre>
+  <pre id="var-docstr">A fixture to set the logging level of a specified logger</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="pallet.common.logging.log4j/with-appender-threshold">with-appender-threshold</h2>
-  <span id="var-type">macro</span><br />
-  <pre id="var-usage">Usage: (with-appender-threshold [level &amp; [appender-name]] &amp; body)
+  <h2 id="pallet.common.logging.logback/slf4j-logback-status">slf4j-logback-status</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (slf4j-logback-status)
 </pre>
-  <pre id="var-docstr">A scope for logging with an appender at the specified threshold</pre>
+  <pre id="var-docstr">Print logback status when configured under slf4j</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="pallet.common.logging.logback/with-log-to-string">with-log-to-string</h2>
+  <span id="var-type">macro</span><br />
+  <pre id="var-usage">Usage: (with-log-to-string [&amp; [appender-name logger-name]] &amp; body)
+</pre>
+  <pre id="var-docstr">A scope for logging with a logger at the specified level</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="pallet.common.logging.logback/with-logger-level">with-logger-level</h2>
+  <span id="var-type">macro</span><br />
+  <pre id="var-usage">Usage: (with-logger-level [level &amp; [appender-name logger-name]] &amp; body)
+</pre>
+  <pre id="var-docstr">A scope for logging with a logger at the specified level</pre>
   
 </div>
 

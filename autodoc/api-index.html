@@ -34,7 +34,7 @@ namespace.
     <a class="wiki_link" href="api-index.html">API Index</a><br />
     <a class="wiki_link" href="#">Namespaces:</a>
     <ul id="left-sidebar-list">
-      <li><a href="pallet.common.deprecate-api.html" class="wiki_link">pallet.common.deprecate</a></li><li><a href="pallet.common.filesystem-api.html" class="wiki_link">pallet.common.filesystem</a></li><li><a href="pallet.common.logging.log4j-api.html" class="wiki_link">pallet.common.logging.log4j</a></li><li><a href="pallet.common.shell-api.html" class="wiki_link">pallet.common.shell</a></li>
+      <li><a href="pallet.common.def-api.html" class="wiki_link">pallet.common.def</a></li><li><a href="pallet.common.deprecate-api.html" class="wiki_link">pallet.common.deprecate</a></li><li><a href="pallet.common.filesystem-api.html" class="wiki_link">pallet.common.filesystem</a></li><li><a href="pallet.common.logging.log4j-api.html" class="wiki_link">pallet.common.logging.log4j</a></li><li><a href="pallet.common.logging.logback-api.html" class="wiki_link">pallet.common.logging.logback</a></li><li><a href="pallet.common.logging.logutils-api.html" class="wiki_link">pallet.common.logging.logutils</a></li><li><a href="pallet.common.logging.slf4j-api.html" class="wiki_link">pallet.common.logging.slf4j</a></li><li><a href="pallet.common.resource-api.html" class="wiki_link">pallet.common.resource</a></li><li><a href="pallet.common.shell-api.html" class="wiki_link">pallet.common.shell</a></li><li><a href="pallet.common.string-api.html" class="wiki_link">pallet.common.string</a></li>
     </ul>
   </div>
 </div>
@@ -87,7 +87,7 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="D"><span id="section-head">D</span></h2>
   <pre>
-<span id="section-content"> <a href="pallet.common.deprecate-api.html#pallet.common.deprecate/deprecated">deprecated</a><span id="line-content">                   function      pallet.common.deprecate Generates a deprecated warning.
+<span id="section-content"> <a href="pallet.common.deprecate-api.html#pallet.common.deprecate/deprecated">deprecated</a><span id="line-content">                   function      pallet.common.deprecate Generates a deprecated warning, locating file...
 </span></span><span id="section-content"> <a href="pallet.common.deprecate-api.html#pallet.common.deprecate/deprecated-macro">deprecated-macro</a><span id="line-content">             macro         pallet.common.deprecate Generates a deprecated warning for a macro, a...
 </span></span></pre>
 </div><div id="index-body">
@@ -124,7 +124,11 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="L"><span id="section-head">L</span></h2>
   <pre>
-<span id="section-content"> <a href="pallet.common.logging.log4j-api.html#pallet.common.logging.log4j/logging-threshold-fixture">logging-threshold-fixture</a><span id="line-content">    function      pallet.common.logging.log4j A fixture to set the logging level of a s...
+<span id="section-content"> <a href="pallet.common.logging.logback-api.html#pallet.common.logging.logback/logger">logger</a><span id="line-content">                       function      pallet.common.logging.logback Get the logger with the specified name.
+</span></span><span id="section-content"> <a href="pallet.common.logging.log4j-api.html#pallet.common.logging.log4j/logging-threshold-fixture">logging-threshold-fixture</a><span id="line-content">    function      pallet.common.logging.log4j A fixture to set the logging level of a s...
+</span></span><span id="section-content"> <a href="pallet.common.logging.logback-api.html#pallet.common.logging.logback/logging-threshold-fixture">logging-threshold-fixture</a><span id="line-content">    function      pallet.common.logging.logback A fixture to set the logging level of a...
+</span></span><span id="section-content"> <a href="pallet.common.logging.logutils-api.html#pallet.common.logging.logutils/logging-threshold-fixture">logging-threshold-fixture</a><span id="line-content">    macro         pallet.common.logging.logutils A fixture to set the logging level of ...
+</span></span><span id="section-content"> <a href="pallet.common.logging.logutils-api.html#pallet.common.logging.logutils/logging-to-stdout">logging-to-stdout</a><span id="line-content">            macro         pallet.common.logging.logutils Send log messages to stdout for inspec...
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="M"><span id="section-head">M</span></h2>
@@ -133,7 +137,8 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="N"><span id="section-head">N</span></h2>
   <pre>
-</pre>
+<span id="section-content"> <a href="pallet.common.def-api.html#pallet.common.def/name-with-attributes">name-with-attributes</a><span id="line-content">         function      pallet.common.def  To be used in macro definitions. Handles optional ...
+</span></span></pre>
 </div><div id="index-body">
   <h2 id="O"><span id="section-head">O</span></h2>
   <pre>
@@ -145,7 +150,8 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="Q"><span id="section-head">Q</span></h2>
   <pre>
-</pre>
+<span id="section-content"> <a href="pallet.common.string-api.html#pallet.common.string/quoted">quoted</a><span id="line-content">                       function      pallet.common.string Add quotes to the argument s as a string.
+</span></span></pre>
 </div><div id="index-body">
   <h2 id="R"><span id="section-head">R</span></h2>
   <pre>
@@ -154,7 +160,11 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="S"><span id="section-head">S</span></h2>
   <pre>
-<span id="section-content"> <a href="pallet.common.shell-api.html#pallet.common.shell/system">system</a><span id="line-content">                       function      pallet.common.shell Launch a system process, return a map containing ...
+<span id="section-content"> <a href="pallet.common.logging.logback-api.html#pallet.common.logging.logback/slf4j-logback-status">slf4j-logback-status</a><span id="line-content">         function      pallet.common.logging.logback Print logback status when configured un...
+</span></span><span id="section-content"> <a href="pallet.common.resource-api.html#pallet.common.resource/slurp">slurp</a><span id="line-content">                        function      pallet.common.resource Reads the resource named by name using the enc...
+</span></span><span id="section-content"> <a href="pallet.common.string-api.html#pallet.common.string/substring">substring</a><span id="line-content">                    function      pallet.common.string The one index version drops first n characters f...
+</span></span><span id="section-content"> <a href="pallet.common.logging.logutils-api.html#pallet.common.logging.logutils/suppress-logging">suppress-logging</a><span id="line-content">             macro         pallet.common.logging.logutils Prevent log messages to reduce test lo...
+</span></span><span id="section-content"> <a href="pallet.common.shell-api.html#pallet.common.shell/system">system</a><span id="line-content">                       function      pallet.common.shell Launch a system process, return a map containing ...
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="T"><span id="section-head">T</span></h2>
@@ -163,7 +173,8 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="U"><span id="section-head">U</span></h2>
   <pre>
-</pre>
+<span id="section-content"> <a href="pallet.common.string-api.html#pallet.common.string/underscore">underscore</a><span id="line-content">                   function      pallet.common.string Replace all occurances of - with _.
+</span></span></pre>
 </div><div id="index-body">
   <h2 id="V"><span id="section-head">V</span></h2>
   <pre>
@@ -171,7 +182,13 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="W"><span id="section-head">W</span></h2>
   <pre>
-<span id="section-content"> <a href="pallet.common.logging.log4j-api.html#pallet.common.logging.log4j/with-appender-threshold">with-appender-threshold</a><span id="line-content">      macro         pallet.common.logging.log4j A scope for logging with an appender at t...
+<span id="section-content"> <a href="pallet.common.deprecate-api.html#pallet.common.deprecate/warn">warn</a><span id="line-content">                         function      pallet.common.deprecate Log a deprecation warning.
+</span></span><span id="section-content"> <a href="pallet.common.logging.log4j-api.html#pallet.common.logging.log4j/with-appender-threshold">with-appender-threshold</a><span id="line-content">      macro         pallet.common.logging.log4j A scope for logging with an appender at t...
+</span></span><span id="section-content"> <a href="pallet.common.logging.logutils-api.html#pallet.common.logging.logutils/with-context">with-context</a><span id="line-content">                 macro         pallet.common.logging.logutils Specify the logging context for a give...
+</span></span><span id="section-content"> <a href="pallet.common.logging.slf4j-api.html#pallet.common.logging.slf4j/with-context">with-context</a><span id="line-content">                 macro         pallet.common.logging.slf4j Specify the logging context for a given b...
+</span></span><span id="section-content"> <a href="pallet.common.logging.logback-api.html#pallet.common.logging.logback/with-log-to-string">with-log-to-string</a><span id="line-content">           macro         pallet.common.logging.logback A scope for logging with a logger at th...
+</span></span><span id="section-content"> <a href="pallet.common.logging.logutils-api.html#pallet.common.logging.logutils/with-log-to-string">with-log-to-string</a><span id="line-content">           macro         pallet.common.logging.logutils Target the logger for an output string...
+</span></span><span id="section-content"> <a href="pallet.common.logging.logback-api.html#pallet.common.logging.logback/with-logger-level">with-logger-level</a><span id="line-content">            macro         pallet.common.logging.logback A scope for logging with a logger at th...
 </span></span><span id="section-content"> <a href="pallet.common.filesystem-api.html#pallet.common.filesystem/with-temp-file">with-temp-file</a><span id="line-content">               macro         pallet.common.filesystem Create a block where `varname` is a temporar...
 </span></span></pre>
 </div><div id="index-body">
