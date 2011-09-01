@@ -4,6 +4,13 @@
    [clojure.tools.logging :as logging]
    [clojure.stacktrace :as stacktrace]))
 
+;;; Try loading logger specific namespaces
+(doseq [ns ['pallet.common.logging.slf4j 'pallet.common.logging.log4j
+            'pallet.common.logging.logback]]
+  (try
+    (require ns)
+    (catch Exception _)))
+
 ;;; A null logger
 ;;; Suppresses all logging.  Can be useful to quiet test cases.
 (deftype NullLog
@@ -69,6 +76,8 @@
     `(pallet.common.logging.slf4j/with-context [~@bindings]
        ~@body)
     (catch Exception _
+      (logging/warn
+       "Logging contexts are not supported by your logger configuration")
       `(do ~@body))))
 
 (defmacro with-threshold
