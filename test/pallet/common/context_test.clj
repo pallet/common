@@ -57,16 +57,14 @@
                   (is (= value "fred"))
                   (is (not @seen-enter))
                   (is (not @seen-exit))
-                  (reset! seen-enter true)
-                  (println "on-entry"))
+                  (reset! seen-enter true))
       :on-exit (fn on-exit [hierarchy1 key value]
                   (is (= hierarchy hierarchy1))
                   (is (= key :pallet.common.context/default))
                   (is (= value "fred"))
                   (is @seen-enter)
                   (is (not @seen-exit))
-                  (reset! seen-exit true)
-                  (println "on-exit"))})
+                  (reset! seen-exit true))})
     (context/in-context
      "fred" [:hierarchy hierarchy]
      (is (= ["fred"] (:pallet.common.context/default @hierarchy)))
