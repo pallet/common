@@ -59,6 +59,13 @@
   `(binding [clojure.tools.logging/*log-factory* @stdout-logger]
      ~@forms))
 
+(defmacro logging-to-string
+  "Send log messages to a string for inspection"
+  [& forms]
+  `(with-out-str
+     (binding [clojure.tools.logging/*log-factory* @stdout-logger]
+       ~@forms)))
+
 (defmacro suppress-logging
   "Prevent log messages to reduce test log noise"
   [& forms]
