@@ -103,7 +103,7 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.logging</artifactId>
-      <version>0.1.2</version>
+      <version>0.2.0</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -170,6 +170,19 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>tools.logging-0.1.2</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.clojure</groupId>
+          <artifactId>tools.logging</artifactId>
+          <version>0.1.2</version>
+          <optional>true</optional>
+        </dependency>
+      </dependencies>
+    </profile>
+
   </profiles>
 
   <developers>
