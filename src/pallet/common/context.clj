@@ -1,51 +1,99 @@
 (ns pallet.common.context
-  "A hierarchical context, with callbacks on entry and exit of a context."
-  (:refer-clojure :exclude [make-hierarchy])
+  "A hierarchical context, with callbacks on entry and exit of a context.
+   The context is a map, with implementation keys.  Options can be used to
+   modify the behaviour of the context, as a form of middleware."
+  (:refer-clojure :exclude [make-context])
   (:require
    [clojure.string :as string]
    [clojure.tools.logging :as logging]
    [slingshot.core :as slingshot]))
 
 (def ^{:dynamic true :doc "Thread specific current context"}
-  *current-hierarchy*)
+  *current-context*)
 
-(defn make-hierarchy
-  "Returns a new context hierarchy. Accepts optional callbacks for :on-enter
+(def
+  ^{:doc "The keys that control the behaviour of a context."}
+  juxt-keys
+  [:on-enter :on-exit :on-exception])
+
+(def
+  ^{:doc "The keys that control the behaviour of a context."}
+  override-keys
+  [:format])
+
+(def
+  ^{:doc "The keys that control the behaviour of a context."}
+  option-keys
+  (concat override-keys juxt-keys))
+
+(defn make-context
+  "Returns a new context context. Accepts optional callbacks for :on-enter
    and on-exit, which are called for every change in context."
-  [& {:keys [on-enter on-exit] :as options}]
-  options)
+  [& {:keys [on-enter on-exit on-exception format key]
+      :or {key ::default format identity}
+      :as options}]
+  (let [key-sym (gensym (name key))]
+    (merge
+     (dissoc options :key :format)
+     {::current-key key
+      ::current-key-sym key-sym
+      ::key-stack [key-sym]
+      ::key-options {key-sym {:format format}}
+      :format format})))
 
 (defn options
-  "Set the options for a hierarchy. Accepts :on-enter and :on-exit callback
+  "Set the options for a context. Accepts :on-enter and :on-exit callback
    functions."
-  ([hierarchy {:keys [on-enter on-exit] :as options}]
-     (merge
-      hierarchy
-      (merge-with juxt (select-keys hierarchy [:on-enter :on-exit]) options)))
-  ([{:keys [on-enter on-exit] :as options}]
-     (options *current-hierarchy* options)))
+  [context {:keys [on-enter on-exit on-exception format]
+            :or {format identity}
+            :as options}]
+  (->
+   context
+   (merge (merge-with juxt (select-keys context juxt-keys) options))
+   (assoc :format format)))
 
-(defn push-context
-  [hierarchy key context]
-  (if context
-    (update-in hierarchy [key] (fn [v] (conj (or v []) context)))
-    hierarchy))
+(defn update-context-key
+  "Set the context key for entries in a context."
+  [context key]
+  (if (or (nil? key) (= key (::current-key context)))
+    context
+    (let [key-sym (gensym (name key))]
+      (->
+       context
+       (assoc ::current-key key)
+       (assoc ::current-key-sym key-sym)
+       (update-in [::key-stack] conj key-sym)
+       (assoc-in [::key-options key-sym] (select-keys context option-keys))))))
+
+(defn push-entry
+  [context entry]
+  (if entry
+    (update-in
+     context [(::current-key-sym context)]
+     (fn [v] (conj (or v []) entry)))
+    context))
 
 (defn on-enter
-  [hierarchy key context]
-  (when-let [f (:on-enter hierarchy)]
-    (f hierarchy key context)))
+  [context entry]
+  (if-let [f (:on-enter context)]
+    (f context entry)
+    context))
 
 (defn on-exit
-  [hierarchy key context]
-  (when-let [f (:on-exit hierarchy)]
-    (f hierarchy key context)))
+  [context entry]
+  (if-let [f (:on-exit context)]
+    (f context entry)
+    context))
+
+(defn on-exception
+  [context exception-map]
+  (if-let [f (:on-exception context)]
+    (f context exception-map)
+    exception-map))
 
 (defn current-context
   "Return the current context."
-  ([hierarchy key] (get hierarchy key))
-  ([hierarchy] (current-context hierarchy ::default))
-  ([] (current-context *current-hierarchy*)))
+  [] (apply dissoc *current-context* ::current-key option-keys ))
 
 (defn- options-and-body
   "Extract an optional options map from the first component of body."
@@ -55,51 +103,51 @@
     [options body]))
 
 (defmacro in-context
-  "Create a scope by pushing a context onto the context hierarchy. On exit of
+  "Create a scope by pushing a context onto the context context. On exit of
    the body, the context is popped."
-  [context & body]
+  [entry & body]
   (let [[options body] (options-and-body body)
-        {:keys [hierarchy key on-enter on-exit]
-         :or {hierarchy `(if (bound? #'*current-hierarchy*)
-                           *current-hierarchy*
-                           (make-hierarchy))
-              key ::default}} options]
-    `(let [context# ~context
-           hierarchy# ~hierarchy
+        {:keys [key on-enter on-exit]} options]
+    `(let [entry# ~entry
+           context# (if (bound? #'*current-context*)
+                      *current-context*
+                      (make-context))
            key# ~key
-           options# ~(select-keys options [:on-enter :on-exit])]
-       (binding [*current-hierarchy* (options
-                                      (push-context hierarchy# key# context#)
-                                      options#)]
+           options# ~(select-keys options option-keys)]
+       (binding [*current-context* (->
+                                    context#
+                                    (options options#)
+                                    (update-context-key key#)
+                                    (push-entry entry#))]
          (try
-           (on-enter *current-hierarchy* key# context#)
+           (on-enter *current-context* entry#)
            ~@body
            (finally
-            (on-exit *current-hierarchy* key# context#)))))))
+            (on-exit *current-context* entry#)))))))
 
 (defmacro try-context
   "Execute body, wrapping any exceptions in an exception which includes the
    current context."
   [& body]
   (let [[options body] (options-and-body body)
-        {:keys [exception-type hierarchy key]
-         :or {exception-type :runtime-exception
-              hierarchy `*current-hierarchy*
-              key ::default}} options]
+        {:keys [exception-type context key]
+         :or {exception-type :runtime-exception}} options]
     `(slingshot/try+
       ~@body
       (catch Exception e#
         (slingshot/throw+
-         {:type ~exception-type
-          :context (current-context ~hierarchy ~key)
-          :message (.getMessage e#)})))))
+         (on-exception
+          *current-context*
+          {:type ~exception-type
+           :context (apply dissoc *current-context* option-keys)
+           :message (.getMessage e#)}))))))
 
 (defmacro with-context
   "Wraps the body with a context, and re-throws wrapped exceptions"
-  [context & body]
+  [entry & body]
   (let [[options body] (options-and-body body)]
     `(let [options# ~options]
-       (in-context ~context options#
+       (in-context ~entry options#
         (try-context options#
          ~@body)))))
 
@@ -107,26 +155,62 @@
   "Throws a map, containing the current context on the :context key"
   [& {:as exception-map}]
   (slingshot/throw+
-   (assoc exception-map
-     :context (dissoc *current-hierarchy* :on-enter :on-exit))))
+   (on-exception
+    *current-context*
+    (assoc exception-map
+      :context (apply dissoc *current-context* option-keys)))))
 
-(defn context-as-string
+(defn context-entries
+  "Return the context entries for a context"
   [context]
-  (string/join " " context))
+  (mapcat context (::key-stack context)))
+
+(defn context-entries-as-string
+  [entries]
+  (string/join " " entries))
+
+(defn formatted-context-entries
+  "Return the formatted context entries for a context"
+  ([context]
+     (mapcat
+      (fn format-context-for-key [key]
+        (map
+         (-> context ::key-options key :format)
+         (get context key)))
+      (::key-stack context)))
+  ([] (formatted-context-entries *current-context*)))
+
 
 (defmacro with-logged-context
   "Log context entries and exits"
   [& body]
   `(in-context
     nil
-    {:on-enter (fn [hierarchy# key# context#]
-                 (when context#
+    {:on-enter (fn [context# entry#]
+                 (when entry#
                    (logging/infof
                     "-> %s"
-                    (context-as-string (current-context hierarchy# key#)))))
-     :on-exit (fn [hierarchy# key# context#]
-                (when context#
+                    (string/join " " (formatted-context-entries)))))
+     :on-exit (fn [context# entry#]
+                (when entry#
                   (logging/infof
                    "<- %s"
-                   (context-as-string (current-context hierarchy# key#)))))}
+                   (string/join " " (formatted-context-entries)))))}
+    ~@body))
+
+(defmacro with-context-history
+  "Add context to a history"
+  [& body]
+  `(in-context
+    nil
+    {:on-enter (fn [context# key# entry#]
+                 (when entry#
+                   (logging/infof
+                    "-> %s"
+                    (context-as-string (current-context context# key#)))))
+     :on-exit (fn [context# key# entry#]
+                (when entry#
+                  (logging/infof
+                   "<- %s"
+                   (context-as-string (current-context context# key#)))))}
     ~@body))
