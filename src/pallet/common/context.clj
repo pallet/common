@@ -1,7 +1,10 @@
 (ns pallet.common.context
   "A hierarchical context, with callbacks on entry and exit of a context.
-   The context is a map, with implementation keys.  Options can be used to
-   modify the behaviour of the context, as a form of middleware."
+   The context is a map, with implementation scopes.  Options can be used to
+   modify the behaviour of the context, as a form of middleware.
+
+   :on-enter - the return value is merged into the context
+   :on-exit - the return value is ignored"
   (:refer-clojure :exclude [make-context])
   (:require
    [clojure.string :as string]
@@ -13,7 +16,7 @@
 
 (def
   ^{:doc "The keys that control the behaviour of a context."}
-  juxt-keys
+  compose-keys
   [:on-enter :on-exit :on-exception])
 
 (def
@@ -24,113 +27,118 @@
 (def
   ^{:doc "The keys that control the behaviour of a context."}
   option-keys
-  (concat override-keys juxt-keys))
+  (concat override-keys compose-keys))
+
+(def override-defaults
+  {:format identity})
+
+(defn set-context-scope
+  [context scope]
+  (let [scope-sym (gensym (name scope))]
+    (->
+     context
+     (assoc ::current-scope scope)
+     (assoc ::current-scope-sym scope-sym)
+     (update-in [::scope-stack] (fn push-scope [s] (conj (or s []) scope-sym)))
+     (assoc-in [::scope-options scope-sym]
+               (assoc (select-keys context option-keys) :scope scope)))))
 
 (defn make-context
-  "Returns a new context context. Accepts optional callbacks for :on-enter
+  "Returns a new context. Accepts optional callbacks for :on-enter
    and on-exit, which are called for every change in context."
-  [& {:keys [on-enter on-exit on-exception format key]
-      :or {key ::default format identity}
+  [& {:keys [scope on-enter on-exit on-exception format]
+      :or {scope ::default}
       :as options}]
-  (let [key-sym (gensym (name key))]
-    (merge
-     (dissoc options :key :format)
-     {::current-key key
-      ::current-key-sym key-sym
-      ::key-stack [key-sym]
-      ::key-options {key-sym {:format format}}
-      :format format})))
+  (letfn [(init-composed [context]
+            (reduce
+             #(update-in % [%2] (fn [f] (if f [f] [])))
+             context compose-keys))]
+    (set-context-scope
+     (->
+      (merge override-defaults options)
+      (init-composed)
+      (dissoc :scope))
+     scope)))
+
+(defn update-context-scope
+  "Set the context scope for entries in a context."
+  [context scope]
+  (if (or (nil? scope) (= scope (::current-scope context)))
+    context
+    (set-context-scope context scope)))
 
 (defn options
   "Set the options for a context. Accepts :on-enter and :on-exit callback
    functions."
-  [context {:keys [on-enter on-exit on-exception format]
-            :or {format identity}
+  [context {:keys [scope on-enter on-exit on-exception format]
             :as options}]
-  (->
-   context
-   (merge (merge-with juxt (select-keys context juxt-keys) options))
-   (assoc :format format)))
-
-(defn update-context-key
-  "Set the context key for entries in a context."
-  [context key]
-  (if (or (nil? key) (= key (::current-key context)))
-    context
-    (let [key-sym (gensym (name key))]
-      (->
-       context
-       (assoc ::current-key key)
-       (assoc ::current-key-sym key-sym)
-       (update-in [::key-stack] conj key-sym)
-       (assoc-in [::key-options key-sym] (select-keys context option-keys))))))
+  (let [scope (or
+               scope
+               (when (seq options)
+                 (keyword (name (gensym "implied-scope")))))]
+    (update-context-scope
+     (merge
+      (merge-with conj context (select-keys options compose-keys))
+      (when scope override-defaults)    ; prevent inheritance
+      (select-keys options override-keys))
+     scope)))
 
 (defn push-entry
   [context entry]
   (if entry
     (update-in
-     context [(::current-key-sym context)]
+     context [(::current-scope-sym context)]
      (fn [v] (conj (or v []) entry)))
     context))
 
 (defn on-enter
   [context entry]
   (if-let [f (:on-enter context)]
-    (f context entry)
+    (apply merge context (map (fn [f] (f context entry)) f))
     context))
 
 (defn on-exit
   [context entry]
-  (if-let [f (:on-exit context)]
-    (f context entry)
-    context))
+  (when-let [fns (:on-exit context)]
+    (doseq [f fns] (f context entry))))
 
 (defn on-exception
   [context exception-map]
   (if-let [f (:on-exception context)]
-    (f context exception-map)
+    (reduce (fn [m f] (f context m)) exception-map f)
     exception-map))
 
 (defn current-context
   "Return the current context."
-  [] (apply dissoc *current-context* ::current-key option-keys ))
-
-(defn- options-and-body
-  "Extract an optional options map from the first component of body."
-  [body]
-  (let [options (if (map? (first body)) (first body) {})
-        body (if (map? (first body)) (rest body) body)]
-    [options body]))
+  [] (apply dissoc *current-context* ::current-scope option-keys ))
 
 (defmacro in-context
-  "Create a scope by pushing a context onto the context context. On exit of
-   the body, the context is popped."
-  [entry & body]
-  (let [[options body] (options-and-body body)
-        {:keys [key on-enter on-exit]} options]
-    `(let [entry# ~entry
-           context# (if (bound? #'*current-context*)
-                      *current-context*
-                      (make-context))
-           key# ~key
-           options# ~(select-keys options option-keys)]
-       (binding [*current-context* (->
-                                    context#
-                                    (options options#)
-                                    (update-context-key key#)
-                                    (push-entry entry#))]
-         (try
-           (on-enter *current-context* entry#)
-           ~@body
-           (finally
-            (on-exit *current-context* entry#)))))))
+  "Create a scope by pushing a context entry onto the context. On exit of
+   the body, the context is popped.
+
+   Recognised options are:
+      scope on-enter on-exit on-exception format"
+  [entry options & body]
+  `(let [entry# ~entry
+         options# ~options
+         context# (if (bound? #'*current-context*)
+                    *current-context*
+                    (make-context))]
+     (binding [*current-context* (->
+                                  context#
+                                  (options options#)
+                                  (push-entry entry#)
+                                  (on-enter entry#))]
+       (try
+         ~@body
+         (finally
+          (on-exit *current-context* entry#))))))
 
 (defmacro try-context
   "Execute body, wrapping any exceptions in an exception which includes the
    current context."
-  [& body]
-  (let [[options body] (options-and-body body)
-        {:keys [exception-type context key]
+  [options & body]
+  (let [{:keys [exception-type]
          :or {exception-type :runtime-exception}} options]
     `(slingshot/try+
       ~@body
@@ -144,15 +152,17 @@
 
 (defmacro with-context
   "Wraps the body with a context, and re-throws wrapped exceptions"
-  [entry & body]
-  (let [[options body] (options-and-body body)]
-    `(let [options# ~options]
-       (in-context ~entry options#
-        (try-context options#
-         ~@body)))))
+  [entry options & body]
+  `(let [entry# ~entry
+         options# ~(dissoc options :exception-type)]
+     (in-context
+      entry# options#
+      (try-context
+       ~(select-keys options [:exception-type])
+       ~@body))))
 
 (defn throw+
-  "Throws a map, containing the current context on the :context key"
+  "Throws a map, containing the current context on the :context scope"
   [& {:as exception-map}]
   (slingshot/throw+
    (on-exception
@@ -163,23 +173,38 @@
 (defn context-entries
   "Return the context entries for a context"
   [context]
-  (mapcat context (::key-stack context)))
+  (mapcat context (::scope-stack context)))
 
 (defn context-entries-as-string
   [entries]
   (string/join " " entries))
 
+(defn formatted-scope-entries
+  "Return the formatted context entries for the given scope"
+  ([context scope]
+     (map
+      (-> context ::scope-options scope :format)
+      (get context scope)))
+  ([]
+     (formatted-scope-entries
+      *current-context* (last (::scope-stack *current-context*)))))
+
 (defn formatted-context-entries
   "Return the formatted context entries for a context"
   ([context]
      (mapcat
-      (fn format-context-for-key [key]
-        (map
-         (-> context ::key-options key :format)
-         (get context key)))
-      (::key-stack context)))
+      (partial formatted-scope-entries context)
+      (::scope-stack context)))
   ([] (formatted-context-entries *current-context*)))
 
+(defn formatted-context
+  "Return the last formatted context entry for a context"
+  ([context]
+     (let [scope (last (::scope-stack context))]
+       ((-> context ::scope-options scope :format)
+        (last (get context scope))))
+     )
+  ([] (formatted-context *current-context*)))
 
 (defmacro with-logged-context
   "Log context entries and exits"
@@ -190,27 +215,65 @@
                  (when entry#
                    (logging/infof
                     "-> %s"
-                    (string/join " " (formatted-context-entries)))))
+                    (string/join " " (formatted-context-entries context#)))))
      :on-exit (fn [context# entry#]
                 (when entry#
                   (logging/infof
                    "<- %s"
-                   (string/join " " (formatted-context-entries)))))}
+                   (string/join " " (formatted-context-entries context#)))))}
     ~@body))
 
+
+(defmacro context-history
+  [{:keys [history-kw limit] :or {history-kw :history limit 100}}]
+  `(fn context-history [context# entry#]
+     (when entry#
+       {::history-kw ~history-kw
+        ~history-kw
+        (let [history# (conj
+                        (or (~history-kw context#)
+                            (clojure.lang.PersistentQueue/EMPTY))
+                        context#)]
+          (if (> (count history#) ~limit) (pop history#) history#))})))
+
 (defmacro with-context-history
-  "Add context to a history"
-  [& body]
+  "Add context to a limited history"
+  [{:keys [history-kw limit] :as options} & body]
   `(in-context
     nil
-    {:on-enter (fn [context# key# entry#]
-                 (when entry#
-                   (logging/infof
-                    "-> %s"
-                    (context-as-string (current-context context# key#)))))
-     :on-exit (fn [context# key# entry#]
-                (when entry#
-                  (logging/infof
-                   "<- %s"
-                   (context-as-string (current-context context# key#)))))}
+    {:on-enter (context-history ~options)}
     ~@body))
+
+(defn formatted-history
+  [context]
+  (get context (::history-kw context))
+  (map
+   formatted-context
+   (get context (::history-kw context))))
+
+(defn scope-context-entries
+  "Return a sequence of context entries for the specified scope"
+  ([context scope]
+     (mapcat
+      context
+      (filter
+       (fn scope= [scope-sym]
+         (= scope (-> context ::scope-options scope-sym :scope)))
+       (::scope-stack context))))
+  ([scope]
+     (scope-context-entries *current-context* scope)))
+
+(defn scope-formatted-context-entries
+  "Return a sequence of formatted context entries for the specified scope"
+  ([context scope]
+     (mapcat
+      (fn [scope-sym]
+        (map
+         (-> context ::scope-options scope-sym :format)
+         (context scope-sym)))
+      (filter
+       (fn scope= [scope-sym]
+         (= scope (-> context ::scope-options scope-sym :scope)))
+       (::scope-stack context))))
+  ([scope]
+     (scope-formatted-context-entries *current-context* scope)))
