@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.cloudhoist</groupId>
     <artifactId>pallet-pom</artifactId>
-    <version>0.4.5</version>
+    <version>0.7.0-SNAPSHOT</version>
     <relativePath>../pallet-pom/pom.xml</relativePath>
   </parent>
   <groupId>org.cloudhoist</groupId>
@@ -26,10 +26,8 @@
 
   <build>
     <sourceDirectory>src</sourceDirectory>
+    <testSourceDirectory>src</testSourceDirectory>
     <resources>
-      <resource>
-        <directory>src</directory>
-      </resource>
       <resource>
         <directory>resources</directory>
         <excludes>
@@ -42,9 +40,6 @@
       </resource>
     </resources>
     <testResources>
-      <testResource>
-        <directory>test</directory>
-      </testResource>
       <testResource>
         <directory>test-resources</directory>
       </testResource>
@@ -62,28 +57,12 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.theoryinpractise</groupId>
-        <artifactId>clojure-maven-plugin</artifactId>
+        <groupId>org.cloudhoist.plugin</groupId>
+        <artifactId>zi</artifactId>
         <configuration>
           <autodocTargetDirectory>doc/autodoc</autodocTargetDirectory>
           <marginaliaTargetDirectory>doc/marginalia</marginaliaTargetDirectory>
         </configuration>
-        <executions>
-          <execution>
-            <id>compile-clojure</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>test-clojure</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-install-plugin</artifactId>
@@ -103,7 +82,6 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.logging</artifactId>
-      <version>0.2.0</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -135,16 +113,6 @@
       <groupId>jline</groupId>
       <artifactId>jline</artifactId>
       <version>0.9.94</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>swank-clojure</groupId>
-      <artifactId>swank-clojure</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>autodoc</groupId>
-      <artifactId>autodoc</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
