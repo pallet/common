@@ -38,8 +38,10 @@
   (format "%s is deprecated, use %s" (pr-str from) (pr-str to)))
 
 (defmacro forward-no-warn
-  [f-name to-ns]
-  `(def ~f-name ~(symbol (name to-ns) (name f-name))))
+  [f-name ns]
+  (let [argv (gensym "argv")]
+    `(defn ~f-name [~'& ~argv]
+       (apply ~(symbol (name ns) (name f-name)) ~argv))))
 
 (defmacro forward-fn-warn
   [f-name ns]
