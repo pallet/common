@@ -147,8 +147,8 @@
          (on-exception
           *current-context*
           {:type ~exception-type
-           :context (apply dissoc *current-context* option-keys)
-           :message (.getMessage e#)}))))))
+           :context (apply dissoc *current-context* option-keys)})
+         (.getMessage e#))))))
 
 (defmacro with-context
   "Wraps the body with a context, and re-throws wrapped exceptions"
