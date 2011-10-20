@@ -1,6 +1,43 @@
-# thread-expr Release Notes
+# Pallet-Common Release Notes
 
-The latest release is 0.2.0.
+The latest release is 0.2.1.
+
+## 0.2.1
+
+### Features
+- Propogate exception message when context exception wrapping
+
+- Upgrade to tools.logging 0.2.0
+  Introduce tools-logging-compat implementation macro to provide
+  implementation details across 0.1.2 and 0.2.0
+
+- Add pallet.common.context for hierarchical contexts
+  Provides a facility for maintaining hierarchical contexts, with
+  extensible behaviour on entering and exiting a context.
+
+  Add try-context, with-context, with-logged-context and throw+
+  Remove atom from common.context, and made on-enter and on-exit callbacks
+  composed with juxt.
+
+- Add logging-to-string to pallet.common.logging.logutils
+  Logs to a string via with-out-str, and logging-to-stdount
+
+- Add strint from clojure.contrib
+
+- Add map-utils/deep-merge-with from clojure.contrib
+
+
+### Fixes
+
+- Change forward-no-warn to generate a forwarding function
+  The forwarding was failing when used with protocol functions, due to lack
+  of metadata on the forwarded var
+
+- Remove extraneous println's from context-test
+
+- Improve robustness of logger specific namespace loading
+  The loading of namespaces from a macro was leading to unbound vars.
+  Requiring the namespaces at the top level seems to fix this.
 
 ## 0.2.0
 
