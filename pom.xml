@@ -4,12 +4,12 @@
   <parent>
     <groupId>org.cloudhoist</groupId>
     <artifactId>pallet-pom</artifactId>
-    <version>0.4.4</version>
+    <version>0.7.0</version>
     <relativePath>../pallet-pom/pom.xml</relativePath>
   </parent>
   <groupId>org.cloudhoist</groupId>
   <artifactId>pallet-common</artifactId>
-  <version>0.2.1-SNAPSHOT</version>
+  <version>0.2.2-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>pallet-common</name>
   <description>
@@ -26,10 +26,8 @@
 
   <build>
     <sourceDirectory>src</sourceDirectory>
+    <testSourceDirectory>src</testSourceDirectory>
     <resources>
-      <resource>
-        <directory>src</directory>
-      </resource>
       <resource>
         <directory>resources</directory>
         <excludes>
@@ -42,9 +40,6 @@
       </resource>
     </resources>
     <testResources>
-      <testResource>
-        <directory>test</directory>
-      </testResource>
       <testResource>
         <directory>test-resources</directory>
       </testResource>
@@ -62,28 +57,12 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>com.theoryinpractise</groupId>
-        <artifactId>clojure-maven-plugin</artifactId>
+        <groupId>org.cloudhoist.plugin</groupId>
+        <artifactId>zi</artifactId>
         <configuration>
           <autodocTargetDirectory>doc/autodoc</autodocTargetDirectory>
           <marginaliaTargetDirectory>doc/marginalia</marginaliaTargetDirectory>
         </configuration>
-        <executions>
-          <execution>
-            <id>compile-clojure</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>test-clojure</id>
-            <phase>test</phase>
-            <goals>
-              <goal>test</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-install-plugin</artifactId>
@@ -103,8 +82,11 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.logging</artifactId>
-      <version>0.1.2</version>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>slingshot</groupId>
+      <artifactId>slingshot</artifactId>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
@@ -133,16 +115,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>swank-clojure</groupId>
-      <artifactId>swank-clojure</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>autodoc</groupId>
-      <artifactId>autodoc</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
       <groupId>marginalia</groupId>
       <artifactId>marginalia</artifactId>
       <optional>true</optional>
@@ -165,6 +137,19 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>tools.logging-0.1.2</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.clojure</groupId>
+          <artifactId>tools.logging</artifactId>
+          <version>0.1.2</version>
+          <optional>true</optional>
+        </dependency>
+      </dependencies>
+    </profile>
+
   </profiles>
 
   <developers>
