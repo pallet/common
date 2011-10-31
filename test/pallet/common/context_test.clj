@@ -104,17 +104,15 @@
     (context/try-context {}
      (throw (Exception. "msg"))))
    (catch map? e
-     (is (= ["fred"] (context/formatted-context-entries (:context e))))
-     (is (= ["fred"] (:msg e)))
-     (is (= "msg" (:message e))))))
+     (is (= ["fred"] (:context e)))
+     (is (= ["fred"] (:msg e))))))
 
 (deftest with-context-test
   (slingshot/try+
    (context/with-context "fred" {}
      (throw (Exception. "msg")))
    (catch map? e
-     (is (= ["fred"] (context/formatted-context-entries (:context e))))
-     (is (= "msg" (:message e))))))
+     (is (= ["fred"] (:context e))))))
 
 (deftest with-logged-context-test
   (is (= "info -> fred\ninfo <- fred\n"

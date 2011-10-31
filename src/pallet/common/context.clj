@@ -134,6 +134,7 @@
          (finally
           (on-exit *current-context* entry#))))))
 
+(declare formatted-context-entries)
 (defmacro try-context
   "Execute body, wrapping any exceptions in an exception which includes the
    current context."
@@ -147,7 +148,7 @@
          (on-exception
           *current-context*
           {:type ~exception-type
-           :context (apply dissoc *current-context* option-keys)})
+           :context (formatted-context-entries *current-context*)})
          (.getMessage e#))))))
 
 (defmacro with-context
@@ -160,15 +161,6 @@
       (try-context
        ~(select-keys options [:exception-type])
        ~@body))))
-
-(defn throw+
-  "Throws a map, containing the current context on the :context scope"
-  [& {:as exception-map}]
-  (slingshot/throw+
-   (on-exception
-    *current-context*
-    (assoc exception-map
-      :context (apply dissoc *current-context* option-keys)))))
 
 (defn context-entries
   "Return the context entries for a context"
@@ -277,3 +269,15 @@
        (::scope-stack context))))
   ([scope]
      (scope-formatted-context-entries *current-context* scope)))
+
+(defn throw-map
+  "Throws a map, containing the current context on the :context scope"
+  [msg {:as exception-map}]
+  (let [context (if (bound? #'*current-context*) *current-context* {})]
+    (slingshot/throw+
+     (on-exception
+      context
+      (assoc exception-map
+        :context (formatted-context-entries context)
+        :context-history (formatted-history context)))
+     msg)))
