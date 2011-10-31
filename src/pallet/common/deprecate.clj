@@ -37,6 +37,10 @@
   [from to]
   (format "%s is deprecated, use %s" (pr-str from) (pr-str to)))
 
+(defmacro forward-no-warn-var
+  [f-name to-ns]
+  `(def ~f-name ~(symbol (name to-ns) (name f-name))))
+
 (defmacro forward-no-warn
   [f-name ns]
   (let [argv (gensym "argv")]
@@ -75,4 +79,4 @@
 (defmacro forward-vars
   "Forward syms to ns"
   [ns & syms]
-  `(do ~@(for [sym syms] `(forward-no-warn ~sym ~ns))))
+  `(do ~@(for [sym syms] `(forward-no-warn-var ~sym ~ns))))
