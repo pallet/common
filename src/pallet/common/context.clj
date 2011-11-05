@@ -7,6 +7,7 @@
    :on-exit - the return value is ignored"
   (:refer-clojure :exclude [make-context])
   (:require
+   [clojure.stacktrace :as stacktrace]
    [clojure.string :as string]
    [clojure.tools.logging :as logging]
    [slingshot.core :as slingshot]))
@@ -139,17 +140,22 @@
   "Execute body, wrapping any exceptions in an exception which includes the
    current context."
   [options & body]
-  (let [{:keys [exception-type]
+  (let [{:keys [exception-type exception-map]
          :or {exception-type :runtime-exception}} options]
     `(slingshot/try+
       ~@body
       (catch Exception e#
-        (slingshot/throw+
-         (on-exception
-          *current-context*
-          {:type ~exception-type
-           :context (formatted-context-entries *current-context*)})
-         (.getMessage e#))))))
+        (let [msgs# (formatted-context-entries *current-context*)]
+          (slingshot/throw+
+           (on-exception
+            *current-context*
+            (merge
+             {:type ~exception-type
+              :context (formatted-context-entries *current-context*)}
+             ~exception-map))
+           (if (seq msgs#)
+             (format "%s : %s" (last msgs#) (.getMessage e#))
+             (.getMessage e#))))))))
 
 (defmacro with-context
   "Wraps the body with a context, and re-throws wrapped exceptions"
@@ -273,11 +279,15 @@
 (defn throw-map
   "Throws a map, containing the current context on the :context scope"
   [msg {:as exception-map}]
-  (let [context (if (bound? #'*current-context*) *current-context* {})]
+  (let [context (if (bound? #'*current-context*) *current-context* {})
+        root-cause (if-let [cause (:cause exception-map)]
+                     (stacktrace/root-cause cause))
+        exception-map (assoc exception-map
+                        :context (formatted-context-entries context)
+                        :context-history (formatted-history context))
+        exception-map (if root-cause
+                        (assoc exception-map :root-cause root-cause)
+                        exception-map)]
     (slingshot/throw+
-     (on-exception
-      context
-      (assoc exception-map
-        :context (formatted-context-entries context)
-        :context-history (formatted-history context)))
+     (on-exception context exception-map)
      msg)))
