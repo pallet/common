@@ -161,12 +161,26 @@
   "Wraps the body with a context, and re-throws wrapped exceptions"
   [entry options & body]
   `(let [entry# ~entry
-         options# ~(dissoc options :exception-type)]
+         options# ~(dissoc options :exception-type :exception-map)]
      (in-context
       entry# options#
       (try-context
-       ~(select-keys options [:exception-type])
+       ~(select-keys options [:exception-type :exception-map])
        ~@body))))
+
+(defmacro log-context
+  "Execute body, logging the current context."
+  [options]
+  (let [{:keys [log-level] :or {log-level :debug}} options]
+    `(logging/log
+      ~log-level (last (formatted-context-entries *current-context*)))))
+
+(defmacro with-logged-context
+  "Wraps the body with a context, and re-throws wrapped exceptions"
+  [entry options & body]
+  `(with-context ~entry ~options
+     (log-context ~options)
+     ~@body))
 
 (defn context-entries
   "Return the context entries for a context"
@@ -204,7 +218,7 @@
      )
   ([] (formatted-context *current-context*)))
 
-(defmacro with-logged-context
+(defmacro with-context-logging
   "Log context entries and exits"
   [& body]
   `(in-context

@@ -115,9 +115,19 @@
      (is (= ["fred"] (:context e))))))
 
 (deftest with-logged-context-test
+  (is (= "debug fred\n"
+         (logutils/logging-to-string
+          (context/with-logged-context "fred" {}
+            nil))))
+  (is (= "info fred\n"
+         (logutils/logging-to-string
+          (context/with-logged-context "fred" {:log-level :info}
+            nil)))))
+
+(deftest with-context-logging-test
   (is (= "info -> fred\ninfo <- fred\n"
          (logutils/logging-to-string
-           (context/with-logged-context
+           (context/with-context-logging
              (context/with-context "fred"
                nil))))))
 
