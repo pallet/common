@@ -1,10 +1,10 @@
 (ns pallet.common.context-test
   (:require
    [pallet.common.context :as context]
-   [pallet.common.logging.logutils :as logutils]
-   [slingshot.core :as slingshot])
+   [pallet.common.logging.logutils :as logutils])
   (:use
-   clojure.test))
+   clojure.test
+   [slingshot.slingshot :only [try+]]))
 
 (deftest in-context-test
   (testing "single level"
@@ -86,7 +86,7 @@
    (is (= ["derf"] (context/formatted-scope-entries)))))
 
 (deftest try-context-test
-  (slingshot/try+
+  (try+
    (context/in-context
     "fred" {}
     (context/try-context
@@ -94,7 +94,7 @@
    (catch map? e
      (is (= ["fred"] (context/formatted-context-entries (:context e))))
      (is (= "msg" (:message e)))))
-  (slingshot/try+
+  (try+
    (context/in-context
     "fred" {:on-exception (fn on-exception-fn [context exception-map]
                             (assoc
@@ -108,7 +108,7 @@
      (is (= ["fred"] (:msg e))))))
 
 (deftest with-context-test
-  (slingshot/try+
+  (try+
    (context/with-context "fred" {}
      (throw (Exception. "msg")))
    (catch map? e

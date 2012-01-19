@@ -9,8 +9,9 @@
   (:require
    [clojure.stacktrace :as stacktrace]
    [clojure.string :as string]
-   [clojure.tools.logging :as logging]
-   [slingshot.core :as slingshot]))
+   [clojure.tools.logging :as logging])
+  (:use
+   [slingshot.slingshot :only [try+ throw+]]))
 
 (def ^{:dynamic true :doc "Thread specific current context"}
   *current-context*)
@@ -111,7 +112,7 @@
 
 (defn current-context
   "Return the current context."
-  [] (apply dissoc *current-context* ::current-scope option-keys ))
+  [] (apply dissoc *current-context* ::current-scope option-keys))
 
 (defmacro in-context
   "Create a scope by pushing a context entry onto the context. On exit of
@@ -142,16 +143,16 @@
   [options & body]
   (let [{:keys [exception-type exception-map]
          :or {exception-type :runtime-exception}} options]
-    `(slingshot/try+
+    `(try+
       ~@body
       (catch Exception e#
         (let [msgs# (formatted-context-entries *current-context*)]
-          (slingshot/throw+
+          (throw+
            (on-exception
             *current-context*
             (merge
              {:type ~exception-type
-              :context (formatted-context-entries *current-context*)}
+              :context msgs#}
              ~exception-map))
            (if (seq msgs#)
              (format "%s : %s" (last msgs#) (.getMessage e#))
@@ -278,15 +279,16 @@
 (defn scope-formatted-context-entries
   "Return a sequence of formatted context entries for the specified scope"
   ([context scope]
-     (mapcat
-      (fn [scope-sym]
-        (map
-         (-> context ::scope-options scope-sym :format)
-         (context scope-sym)))
+     (->>
+      (::scope-stack context)
       (filter
        (fn scope= [scope-sym]
-         (= scope (-> context ::scope-options scope-sym :scope)))
-       (::scope-stack context))))
+         (= scope (-> context ::scope-options scope-sym :scope))))
+      (mapcat
+       (fn [scope-sym]
+         (map
+          (-> context ::scope-options scope-sym :format)
+          (context scope-sym))))))
   ([scope]
      (scope-formatted-context-entries *current-context* scope)))
 
@@ -302,6 +304,6 @@
         exception-map (if root-cause
                         (assoc exception-map :root-cause root-cause)
                         exception-map)]
-    (slingshot/throw+
+    (throw+
      (on-exception context exception-map)
-     msg)))
+     (string/replace msg "%" "%%"))))
