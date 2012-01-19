@@ -88,9 +88,13 @@
 (defn push-entry
   [context entry]
   (if entry
-    (update-in
-     context [(::current-scope-sym context)]
-     (fn [v] (conj (or v []) entry)))
+    (if (sequential? entry)
+      (update-in
+       context [(::current-scope-sym context)]
+       (fn [v] (vec (concat (or v []) entry))))
+      (update-in
+       context [(::current-scope-sym context)]
+       (fn [v] (conj (or v []) entry))))
     context))
 
 (defn on-enter
