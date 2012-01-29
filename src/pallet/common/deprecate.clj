@@ -38,41 +38,83 @@
   (format "%s is deprecated, use %s" (pr-str from) (pr-str to)))
 
 (defmacro forward-no-warn
-  [f-name ns]
-  (let [argv (gensym "argv")]
-    `(defn ~f-name [~'& ~argv]
-       (apply ~(symbol (name ns) (name f-name)) ~argv))))
+  ([f-name ns]
+     (let [argv (gensym "argv")]
+       `(defn ~f-name [~'& ~argv]
+          (apply ~(symbol (name ns) (name f-name)) ~argv))))
+  ([f-name ns version]
+     (let [argv (gensym "argv")]
+       `(defn ~f-name {:deprecated ~version} [~'& ~argv]
+          (apply ~(symbol (name ns) (name f-name)) ~argv)))))
+
+(defn warn-and-forward
+  [f-name ns form argv]
+  `[(deprecated-macro
+     ~form
+     (rename
+      ~(list 'quote (symbol (name (ns-name *ns*)) (name f-name)))
+      ~(list 'quote (symbol (name ns) (name f-name))))
+     )
+    ~(list
+      `list*
+      (list 'quote (symbol (name ns) (name f-name)))
+      argv
+      )])
 
 (defmacro forward-fn-warn
-  [f-name ns]
-  (let [argv (gensym "argv")]
-    `(defmacro ~f-name [~'& ~argv]
-       `(do
-          (deprecated-macro
-           ~~'&form
-           (deprecate-rename
-            ~(list 'quote (symbol (name (ns-name *ns*)) (name '~f-name)))
-            ~'~(list 'quote (symbol (name (ns-name ns)) (name f-name)))))
-          ~~(list
-             `list*
-             (list 'quote (symbol (name ns) (name f-name)))
-             argv)))))
+  ([f-name ns]
+     (let [argv (gensym "argv")]
+       `(defmacro ~f-name [~'& ~argv]
+          ~@(warn-and-forward f-name ns '&form argv))))
+  ([f-name ns ver]
+     (let [argv (gensym "argv")]
+       `(defmacro ~f-name {:deprecated ~ver} [~'& ~argv]
+          ~@(warn-and-forward f-name ns '&form argv)))))
+
+;; (defmacro forward-fn-warn
+;;   [f-name ns]
+;;   (let [argv (gensym "argv")]
+;;     `(defmacro ~f-name [~'& ~argv]
+;;        `(do
+;;           (deprecated-macro
+;;            ~~'&form
+;;            (deprecate-rename
+;;             ~(list 'quote (symbol (name (ns-name *ns*)) (name '~f-name)))
+;;             ~'~(list 'quote (symbol (name (ns-name ns)) (name f-name)))))
+;;           ~~(list
+;;              `list*
+;;              (list 'quote (symbol (name ns) (name f-name)))
+;;              argv)))))
+
 (defmacro forward-fn-no-warn
-  [f-name ns]
-  `(forward-no-warn ~f-name ~ns))
+  ([f-name ns]
+     `(forward-no-warn ~f-name ~ns))
+  ([f-name ns version]
+     `(forward-no-warn ~f-name ~ns ~version)))
 
 (defmacro forward-fn
-  [f-name ns]
-  (if (System/getProperty "pallet.warn-on-resource-use")
-    `(forward-fn-warn ~f-name ~ns)
-    `(forward-fn-no-warn ~f-name ~ns)))
+  ([f-name ns ver]
+     (if (System/getProperty "pallet.warn-on-resource-use")
+       `(forward-fn-warn ~f-name ~ns ~ver)
+       `(forward-fn-no-warn ~f-name ~ns ~ver)))
+  ([f-name ns]
+     (if (System/getProperty "pallet.warn-on-resource-use")
+       `(forward-fn-warn ~f-name ~ns)
+       `(forward-fn-no-warn ~f-name ~ns))))
 
 (defmacro forward-fns
   "Forward syms to ns"
-  [ns & fns]
-  `(do ~@(for [f fns] `(forward-fn ~f ~ns))))
+  {:arglists '[[ns & fn-syms][version-string ns & fn-syms]]}
+  [ns-or-ver & fns]
+  (if (string? ns-or-ver)
+    `(do ~@(for [f (rest fns)] `(forward-fn ~f ~(first fns) ~ns-or-ver)))
+    `(do ~@(for [f fns] `(forward-fn ~f ~ns-or-ver)))))
 
 (defmacro forward-vars
   "Forward syms to ns"
-  [ns & syms]
-  `(do ~@(for [sym syms] `(forward-no-warn ~sym ~ns))))
+  {:arglists '[[ns & syms][version-string ns & syms]]}
+  [ns-or-ver & syms]
+  (if (string? ns-or-ver)
+    `(do ~@(for [sym (rest syms)]
+             `(forward-no-warn ~sym ~(first syms) ~ns-or-ver)))
+    `(do ~@(for [sym syms] `(forward-no-warn ~sym ~ns-or-ver)))))

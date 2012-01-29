@@ -59,6 +59,7 @@
       <plugin>
         <groupId>org.cloudhoist.plugin</groupId>
         <artifactId>zi</artifactId>
+        <version>${zi.version}</version>
         <configuration>
           <autodocTargetDirectory>doc/autodoc</autodocTargetDirectory>
           <marginaliaTargetDirectory>doc/marginalia</marginaliaTargetDirectory>
@@ -177,4 +178,7 @@
     </repository>
   </repositories>
 
+  <properties>
+    <zi.version>0.4.4</zi.version>
+  </properties>
 </project>
