@@ -1,6 +1,16 @@
 # Pallet-Common Release Notes
 
-The latest release is 0.2.1.
+The latest 0.2.x release is 0.2.2.
+
+## 0.2.2
+
+### Features
+- Add utility for testing code that should throw slingshot exceptions
+
+  Adds is-thrown-slingshot?, is-thrown-with-msg-slingshot?, ex-data,
+  slingshot-exception and slingshot-object
+
+- Enable generation of :deprecated meta data in pallet.common.deprecate
 
 ## 0.2.1
 
