@@ -156,7 +156,8 @@
             *current-context*
             (merge
              {:type ~exception-type
-              :context msgs#}
+              :context msgs#
+              :cause e#}
              ~exception-map))
            (if (seq msgs#)
              (format "%s : %s" (last msgs#) (.getMessage e#))
