@@ -282,3 +282,15 @@
        (::scope-stack context))))
   ([scope]
      (scope-formatted-context-entries *current-context* scope)))
+
+(defn throw-map
+  "Throws a map, containing the current context on the :context scope"
+  [msg {:as exception-map}]
+  (let [context (if (bound? #'*current-context*) *current-context* {})]
+    (slingshot/throw+
+     (on-exception
+      context
+      (assoc exception-map
+        :context (formatted-context-entries context)
+        :context-history (formatted-history context)))
+     msg)))
