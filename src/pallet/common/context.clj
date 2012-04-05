@@ -8,8 +8,13 @@
   (:refer-clojure :exclude [make-context])
   (:require
    [clojure.string :as string]
-   [clojure.tools.logging :as logging]
-   [slingshot.core :as slingshot]))
+   [clojure.tools.logging :as logging]))
+
+;; slingshot version compatibility
+(try
+  (require '[slingshot.slingshot :as slingshot])
+  (catch Exception _
+    (require '[slingshot.core :as slingshot])))
 
 (def ^{:dynamic true :doc "Thread specific current context"}
   *current-context*)
