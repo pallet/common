@@ -1,6 +1,12 @@
 # Pallet-Common Release Notes
 
-The latest 0.2.x release is 0.2.2.
+The latest 0.2.x release is 0.2.3.
+
+## 0.2.3
+
+- Add a function for throwing a map within a context
+
+- Add slingshot version compatibility
 
 ## 0.2.2
 
