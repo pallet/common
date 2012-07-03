@@ -16,7 +16,7 @@ Installation is with maven or your favourite maven repository aware build tool.
 
 ### lein/cake project.clj
 
-    :dependencies [[org.cloudhoist/pallet-common "0.2.1"]]
+    :dependencies [[org.cloudhoist/pallet-common "0.3.0"]]
     :repositories {"sonatype"
                    "http://oss.sonatype.org/content/repositories/releases"}
 
@@ -41,4 +41,4 @@ Installation is with maven or your favourite maven repository aware build tool.
 
 Licensed under [EPL](http://www.eclipse.org/legal/epl-v10.html)
 
-Copyright 2011 Hugo Duncan.
+Copyright 2011, 2012 Hugo Duncan.
