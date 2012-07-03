@@ -7,9 +7,11 @@
    :on-exit - the return value is ignored"
   (:refer-clojure :exclude [make-context])
   (:require
+   [clojure.stacktrace :as stacktrace]
    [clojure.string :as string]
-   [clojure.tools.logging :as logging]
-   [slingshot.core :as slingshot]))
+   [clojure.tools.logging :as logging])
+  (:use
+   [slingshot.slingshot :only [try+ throw+]]))
 
 (def ^{:dynamic true :doc "Thread specific current context"}
   *current-context*)
@@ -86,9 +88,13 @@
 (defn push-entry
   [context entry]
   (if entry
-    (update-in
-     context [(::current-scope-sym context)]
-     (fn [v] (conj (or v []) entry)))
+    (if (sequential? entry)
+      (update-in
+       context [(::current-scope-sym context)]
+       (fn [v] (vec (concat (or v []) entry))))
+      (update-in
+       context [(::current-scope-sym context)]
+       (fn [v] (conj (or v []) entry))))
     context))
 
 (defn on-enter
@@ -110,7 +116,7 @@
 
 (defn current-context
   "Return the current context."
-  [] (apply dissoc *current-context* ::current-scope option-keys ))
+  [] (apply dissoc *current-context* ::current-scope option-keys))
 
 (defmacro in-context
   "Create a scope by pushing a context entry onto the context. On exit of
@@ -134,41 +140,53 @@
          (finally
           (on-exit *current-context* entry#))))))
 
+(declare formatted-context-entries)
 (defmacro try-context
   "Execute body, wrapping any exceptions in an exception which includes the
    current context."
   [options & body]
-  (let [{:keys [exception-type]
+  (let [{:keys [exception-type exception-map]
          :or {exception-type :runtime-exception}} options]
-    `(slingshot/try+
+    `(try+
       ~@body
       (catch Exception e#
-        (slingshot/throw+
-         (on-exception
-          *current-context*
-          {:type ~exception-type
-           :context (apply dissoc *current-context* option-keys)})
-         (.getMessage e#))))))
+        (let [msgs# (formatted-context-entries *current-context*)]
+          (throw+
+           (on-exception
+            *current-context*
+            (merge
+             {:type ~exception-type
+              :context msgs#
+              :cause e#}
+             ~exception-map))
+           (if (seq msgs#)
+             (format "%s : %s" (last msgs#) (.getMessage e#))
+             (.getMessage e#))))))))
 
 (defmacro with-context
   "Wraps the body with a context, and re-throws wrapped exceptions"
   [entry options & body]
   `(let [entry# ~entry
-         options# ~(dissoc options :exception-type)]
+         options# ~(dissoc options :exception-type :exception-map)]
      (in-context
       entry# options#
       (try-context
-       ~(select-keys options [:exception-type])
+       ~(select-keys options [:exception-type :exception-map])
        ~@body))))
 
-(defn throw+
-  "Throws a map, containing the current context on the :context scope"
-  [& {:as exception-map}]
-  (slingshot/throw+
-   (on-exception
-    *current-context*
-    (assoc exception-map
-      :context (apply dissoc *current-context* option-keys)))))
+(defmacro log-context
+  "Execute body, logging the current context."
+  [options]
+  (let [{:keys [log-level] :or {log-level :debug}} options]
+    `(logging/log
+      ~log-level (last (formatted-context-entries *current-context*)))))
+
+(defmacro with-logged-context
+  "Wraps the body with a context, and re-throws wrapped exceptions"
+  [entry options & body]
+  `(with-context ~entry ~options
+     (log-context ~options)
+     ~@body))
 
 (defn context-entries
   "Return the context entries for a context"
@@ -206,7 +224,7 @@
      )
   ([] (formatted-context *current-context*)))
 
-(defmacro with-logged-context
+(defmacro with-context-logging
   "Log context entries and exits"
   [& body]
   `(in-context
@@ -266,14 +284,31 @@
 (defn scope-formatted-context-entries
   "Return a sequence of formatted context entries for the specified scope"
   ([context scope]
-     (mapcat
-      (fn [scope-sym]
-        (map
-         (-> context ::scope-options scope-sym :format)
-         (context scope-sym)))
+     (->>
+      (::scope-stack context)
       (filter
        (fn scope= [scope-sym]
-         (= scope (-> context ::scope-options scope-sym :scope)))
-       (::scope-stack context))))
+         (= scope (-> context ::scope-options scope-sym :scope))))
+      (mapcat
+       (fn [scope-sym]
+         (map
+          (-> context ::scope-options scope-sym :format)
+          (context scope-sym))))))
   ([scope]
      (scope-formatted-context-entries *current-context* scope)))
+
+(defn throw-map
+  "Throws a map, containing the current context on the :context scope"
+  [msg {:as exception-map}]
+  (let [context (if (bound? #'*current-context*) *current-context* {})
+        root-cause (if-let [cause (:cause exception-map)]
+                     (stacktrace/root-cause cause))
+        exception-map (assoc exception-map
+                        :context (formatted-context-entries context)
+                        :context-history (formatted-history context))
+        exception-map (if root-cause
+                        (assoc exception-map :root-cause root-cause)
+                        exception-map)]
+    (throw+
+     (on-exception context exception-map)
+     (string/replace msg "%" "%%"))))

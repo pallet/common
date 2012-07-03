@@ -4,12 +4,11 @@
   <parent>
     <groupId>org.cloudhoist</groupId>
     <artifactId>pallet-pom</artifactId>
-    <version>0.7.0</version>
-    <relativePath>../pallet-pom/pom.xml</relativePath>
+    <version>0.7.3</version>
   </parent>
   <groupId>org.cloudhoist</groupId>
   <artifactId>pallet-common</artifactId>
-  <version>0.2.2-SNAPSHOT</version>
+  <version>0.3.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>pallet-common</name>
   <description>
@@ -25,25 +24,6 @@
   </scm>
 
   <build>
-    <sourceDirectory>src</sourceDirectory>
-    <testSourceDirectory>src</testSourceDirectory>
-    <resources>
-      <resource>
-        <directory>resources</directory>
-        <excludes>
-          <exclude>filtered/*</exclude>
-        </excludes>
-      </resource>
-      <resource>
-        <directory>resources/filtered</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>test-resources</directory>
-      </testResource>
-    </testResources>
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
@@ -60,15 +40,10 @@
         <groupId>org.cloudhoist.plugin</groupId>
         <artifactId>zi</artifactId>
         <configuration>
-          <autodocTargetDirectory>doc/autodoc</autodocTargetDirectory>
-          <marginaliaTargetDirectory>doc/marginalia</marginaliaTargetDirectory>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-install-plugin</artifactId>
-        <version>2.3.1</version>
-        <configuration>
-          <updateReleaseInfo>true</updateReleaseInfo>
+          <codoxTargetDirectory>doc/api/${pallet-common.doc.version}</codoxTargetDirectory>
+          <codoxApiVersion>${pallet-common.doc.version}</codoxApiVersion>
+          <codoxWriter>codox-md.writer/write-docs</codoxWriter>
+          <marginaliaTargetDirectory>doc</marginaliaTargetDirectory>
         </configuration>
       </plugin>
     </plugins>
@@ -82,7 +57,8 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>tools.logging</artifactId>
-      <optional>true</optional>
+      <version>${tools.logging.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>slingshot</groupId>
@@ -91,90 +67,29 @@
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <optional>true</optional>
+      <version>1.2.14</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <optional>true</optional>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-core</artifactId>
-      <optional>true</optional>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>jline</groupId>
-      <artifactId>jline</artifactId>
-      <version>0.9.94</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>marginalia</groupId>
-      <artifactId>marginalia</artifactId>
-      <optional>true</optional>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>distribution</id>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-jar-plugin</artifactId>
-            <configuration>
-              <excludes>
-                <exclude>log4j.xml</exclude>
-              </excludes>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>tools.logging-0.1.2</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.clojure</groupId>
-          <artifactId>tools.logging</artifactId>
-          <version>0.1.2</version>
-          <optional>true</optional>
-        </dependency>
-      </dependencies>
-    </profile>
-
-  </profiles>
-
-  <developers>
-    <developer>
-      <name>Hugo Duncan</name>
-      <id>hugoduncan</id>
-      <email>hugo -at- hugoduncan -dot- org</email>
-      <roles>
-        <role>PMC</role>
-        <role>Developer</role>
-      </roles>
-      <timezone>-5</timezone>
-    </developer>
-  </developers>
-
-  <!-- make sure we can find the parent pom -->
-  <repositories>
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>sonatype-nexus-releases</id>
-      <name>Sonatype Nexus Releases</name>
-      <url>http://oss.sonatype.org/content/repositories/releases</url>
-    </repository>
-  </repositories>
+  <properties>
+    <pallet-common.doc.version>0.3</pallet-common.doc.version>
+    <tools.logging.version>0.2.0</tools.logging.version>
+  </properties>
 
 </project>

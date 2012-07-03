@@ -1,6 +1,19 @@
 # Pallet-Common Release Notes
 
-The latest release is 0.2.1.
+The latest release is 0.3.0.
+
+## 0.3.0
+
+- Add cause to context exceptions
+
+- Allow setting of multiple contexts at one time
+  This is useful if you wish to save and restore contexts.
+
+- Repurpose with-logged-context, and move to  with-context-logging
+  with-logged-context logs the current context entry. with-context-logging
+  will add logging to every context entry and exit.
+
+- Add root-cause and exception-map to wrapped exceptions
 
 ## 0.2.1
 
