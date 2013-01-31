@@ -3,8 +3,7 @@
    [pallet.common.context :as context]
    [pallet.common.logging.logutils :as logutils])
   (:use
-   clojure.test
-   [slingshot.slingshot :only [try+]]))
+   clojure.test))
 
 (deftest in-context-test
   (testing "single level"
@@ -86,15 +85,16 @@
    (is (= ["derf"] (context/formatted-scope-entries)))))
 
 (deftest try-context-test
-  (try+
+  (try
    (context/in-context
     "fred" {}
     (context/try-context
      (throw (Exception. "msg"))))
-   (catch map? e
-     (is (= ["fred"] (context/formatted-context-entries (:context e))))
-     (is (= "msg" (:message e)))))
-  (try+
+   (catch clojure.lang.ExceptionInfo e
+     (is (= ["fred"] (context/formatted-context-entries
+                      (:context (ex-data e)))))
+     (is (= "msg" (:message (ex-data e))))))
+  (try
    (context/in-context
     "fred" {:on-exception (fn on-exception-fn [context exception-map]
                             (assoc
@@ -103,16 +103,16 @@
                                  context)))}
     (context/try-context {}
      (throw (Exception. "msg"))))
-   (catch map? e
-     (is (= ["fred"] (:context e)))
-     (is (= ["fred"] (:msg e))))))
+   (catch clojure.lang.ExceptionInfo e
+     (is (= ["fred"] (:context (ex-data e))))
+     (is (= ["fred"] (:msg (ex-data e)))))))
 
 (deftest with-context-test
-  (try+
+  (try
    (context/with-context "fred" {}
      (throw (Exception. "msg")))
-   (catch map? e
-     (is (= ["fred"] (:context e))))))
+   (catch clojure.lang.ExceptionInfo e
+     (is (= ["fred"] (:context (ex-data e)))))))
 
 (deftest with-logged-context-test
   (is (= "debug fred\n"

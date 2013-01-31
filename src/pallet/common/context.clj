@@ -9,9 +9,7 @@
   (:require
    [clojure.stacktrace :as stacktrace]
    [clojure.string :as string]
-   [clojure.tools.logging :as logging])
-  (:use
-   [slingshot.slingshot :only [try+ throw+]]))
+   [clojure.tools.logging :as logging]))
 
 (def ^{:dynamic true :doc "Thread specific current context"}
   *current-context*)
@@ -147,21 +145,22 @@
   [options & body]
   (let [{:keys [exception-type exception-map]
          :or {exception-type :runtime-exception}} options]
-    `(try+
-      ~@body
-      (catch Exception e#
-        (let [msgs# (formatted-context-entries *current-context*)]
-          (throw+
-           (on-exception
-            *current-context*
-            (merge
-             {:type ~exception-type
-              :context msgs#
-              :cause e#}
-             ~exception-map))
-           (if (seq msgs#)
-             (format "%s : %s" (last msgs#) (.getMessage e#))
-             (.getMessage e#))))))))
+    `(try
+       ~@body
+       (catch Exception e#
+         (let [msgs# (formatted-context-entries *current-context*)]
+           (throw
+            (ex-info
+             (if (seq msgs#)
+               (format "%s : %s" (last msgs#) (.getMessage e#))
+               (.getMessage e#))
+             (on-exception
+              *current-context*
+              (merge
+               {:type ~exception-type
+                :context msgs#}
+               ~exception-map))
+             e#)))))))
 
 (defmacro with-context
   "Wraps the body with a context, and re-throws wrapped exceptions"
@@ -309,6 +308,7 @@
         exception-map (if root-cause
                         (assoc exception-map :root-cause root-cause)
                         exception-map)]
-    (throw+
-     (on-exception context exception-map)
-     (string/replace msg "%" "%%"))))
+    (throw
+     (ex-info
+      msg
+      (on-exception context exception-map)))))

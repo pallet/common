@@ -8,7 +8,7 @@
   </parent>
   <groupId>org.cloudhoist</groupId>
   <artifactId>pallet-common</artifactId>
-  <version>0.3.1-SNAPSHOT</version>
+  <version>0.3.2-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>pallet-common</name>
   <description>
@@ -61,23 +61,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>slingshot</groupId>
-      <artifactId>slingshot</artifactId>
-    </dependency>
-    <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.14</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-core</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -88,6 +74,7 @@
   </dependencies>
 
   <properties>
+    <clojure.version>1.4.0</clojure.version>
     <pallet-common.doc.version>0.3</pallet-common.doc.version>
     <tools.logging.version>0.2.0</tools.logging.version>
   </properties>
