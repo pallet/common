@@ -1,6 +1,13 @@
 # Pallet-Common Release Notes
 
-The latest release is 0.3.0.
+The latest release is 0.3.1.
+
+## 0.3.1
+
+- Update logback test configuration to use encoder
+  The layout element is no longer valid.
+
+- Depend on clojure 1.4 and remove slingshot
 
 ## 0.3.0
 
