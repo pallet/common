@@ -1,8 +1,8 @@
 <configuration scan="true" scanPeriod="1 seconds">
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-    <layout class="ch.qos.logback.classic.PatternLayout">
-      <Pattern>%msg%n</Pattern>
-    </layout>
+    <encoder>
+      <pattern>%msg%n</pattern>
+    </encoder>
   </appender>
 
   <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
@@ -17,9 +17,9 @@
       <appender name="FILE-${my-key}" class="ch.qos.logback.core.FileAppender">
         <file>logs/${my-key}.log</file>
         <append>false</append>
-        <layout class="ch.qos.logback.classic.PatternLayout">
+        <encoder>
           <pattern>%msg%n</pattern>
-        </layout>
+        </encoder>
       </appender>
     </sift>
   </appender>
