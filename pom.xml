@@ -61,10 +61,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>slingshot</groupId>
-      <artifactId>slingshot</artifactId>
-    </dependency>
-    <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.14</version>
@@ -88,6 +84,7 @@
   </dependencies>
 
   <properties>
+    <clojure.version>1.4.0</clojure.version>
     <pallet-common.doc.version>0.3</pallet-common.doc.version>
     <tools.logging.version>0.2.0</tools.logging.version>
   </properties>
