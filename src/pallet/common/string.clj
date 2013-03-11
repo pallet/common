@@ -13,11 +13,11 @@
 
        (substring \"test\" 1) => \"est\"
        (substring \"test\" 1 3) => \"es\""
-  ([^CharSequence s n]
+  ([^String s n]
      (if (< (count s) n)
        ""
-       (.substring s n)))
-  ([^CharSequence s n m]
+       (.substring s (int n))))
+  ([^String s n m]
      (if (< (count s) n)
        ""
        (.substring s n (min m (count s))))))

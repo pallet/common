@@ -7,7 +7,9 @@
   "Find the call site of a function. A macro so we don't create extra frames."
   ([] `(find-caller-from-stack 4))
   ([frame-depth]
-     `(let [frame# (nth (.. (Thread/currentThread) getStackTrace) ~frame-depth)]
+     `(let [^StackTraceElement frame# (nth
+                                       (.. (Thread/currentThread) getStackTrace)
+                                       ~frame-depth)]
         [(.getFileName frame#) (.getLineNumber frame#)])))
 
 (defn warn
