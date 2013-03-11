@@ -1,7 +1,12 @@
 (ns pallet.common.logging.logback
   "Functions for manipulating logback"
   (:require
-   [clojure.tools.logging :as logging]))
+   [clojure.tools.logging :as logging])
+  (:import
+   [ch.qos.logback.core.filter AbstractMatcherFilter Filter]
+   [ch.qos.logback.core Appender]
+   [ch.qos.logback.classic Logger]
+   [ch.qos.logback.classic.filter LevelFilter]))
 
 (def log-priorities
   {:warn ch.qos.logback.classic.Level/WARN
@@ -20,20 +25,20 @@
   ([^String logger-name]
      (org.slf4j.LoggerFactory/getLogger logger-name)))
 
-(defn set-filters [appender filters]
+(defn set-filters [^Appender appender filters]
   (.clearAllFilters appender)
-  (doseq [filter filters]
+  (doseq [^Filter filter filters]
     (.addFilter appender filter)))
 
 (defmacro with-logger-level
   "A scope for logging with a logger at the specified level"
   [[level & [appender-name logger-name]] & body]
   `(let [logger-name# ~logger-name
-         appender-name# (or ~appender-name "CONSOLE")]
-     (if-let [logger# (logger (or logger-name# root-logger-name))]
-       (if-let [appender# (.getAppender logger# appender-name#)]
+         ^String appender-name# (or ~appender-name "CONSOLE")]
+     (if-let [^Logger logger# (logger (or logger-name# root-logger-name))]
+       (if-let [^Appender appender# (.getAppender logger# appender-name#)]
          (let [filters# (.getCopyOfAttachedFiltersList appender#)
-               filter# (ch.qos.logback.classic.filter.LevelFilter.)]
+               ^LevelFilter filter# (LevelFilter.)]
            (try
              (.addFilter appender# filter#)
              (doto filter#
@@ -65,12 +70,6 @@
      (fn [f]
        (with-logger-level [level appender-name logger-name]
          (f)))))
-
-(defn slf4j-logback-status
-  "Print logback status when configured under slf4j"
-  []
-  (ch.qos.logback.core.util.StatusPrinter/print
-   (org.slf4j.LoggerFactory/getILoggerFactory)))
 
 (defmacro with-log-to-string
   "A scope for logging with a logger at the specified level"

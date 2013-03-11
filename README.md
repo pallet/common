@@ -9,33 +9,33 @@ and [annotated source](http://pallet.github.com/common/marginalia/uberdoc.html).
 
 ## Installation
 
-pallet-common is distributed as a jar, and is available in the
-[sonatype repository](http://oss.sonatype.org/content/repositories/releases/org/cloudhoist).
+`pallet-common` is distributed as a jar, and is available in the
+[clojars repository](http://clojars.org/com.palletops/pallet-common).
 
-Installation is with maven or your favourite maven repository aware build tool.
+Installation is with [leiningen](https://github.com/technomancy/leiningen) or
+maven.
 
-### lein/cake project.clj
+### lein
 
-    :dependencies [[org.cloudhoist/pallet-common "0.3.1"]]
-    :repositories {"sonatype"
-                   "http://oss.sonatype.org/content/repositories/releases"}
+Add the following to your `project.clj` file:
 
-### maven pom.xml
+```clj
+:dependencies [[com.palletops/pallet-common "0.4.0"]]
+```
 
-    <dependencies>
-      <dependency>
-        <groupId>org.cloudhoist</groupId>
-        <artifactId>pallet-common</artifactId>
-        <version>0.2.1</version>
-      </dependency>
-    <dependencies>
+### maven 
 
-    <repositories>
-      <repository>
-        <id>sonatype</id>
-        <url>http://oss.sonatype.org/content/repositories/releases</url>
-      </repository>
-    </repositories>
+Add the following to your dependencies in `pom.xml`:
+
+```xml
+<dependencies>
+  <dependency>
+    <groupId>comp.palletops</groupId>
+    <artifactId>pallet-common</artifactId>
+    <version>0.4.0</version>
+  </dependency>
+<dependencies>
+```
 
 ## License
 

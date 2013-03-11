@@ -7,7 +7,7 @@
 (defn system
   "Launch a system process, return a map containing the exit code, standard
   output and standard error of the process."
-  [cmd]
+  [^String cmd]
   (apply shell/sh (.split cmd " ")))
 
 (defn bash [cmds]
