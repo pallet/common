@@ -1,6 +1,16 @@
 # Pallet-Common Release Notes
 
-The latest release is 0.3.1.
+The latest release is 0.4.0.
+
+## 0.4.0
+
+- Remove slf4j-logback-status
+
+- Remove reflection warnings
+
+- Use lein as the build tool
+  Switch to clojars, with a com.palletops group id.
+
 
 ## 0.3.1
 
