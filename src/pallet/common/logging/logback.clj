@@ -71,12 +71,6 @@
        (with-logger-level [level appender-name logger-name]
          (f)))))
 
-(defn slf4j-logback-status
-  "Print logback status when configured under slf4j"
-  []
-  (ch.qos.logback.core.util.StatusPrinter/print
-   (org.slf4j.LoggerFactory/getILoggerFactory)))
-
 (defmacro with-log-to-string
   "A scope for logging with a logger at the specified level"
   [[& [appender-name logger-name]] & body]
